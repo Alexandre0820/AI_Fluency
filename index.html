@@ -665,7 +665,7 @@ function showResults() {
           <div style="font-size: 12px; color: ${isCorrect ? 'var(--success)' : 'var(--danger)'}; font-weight: 600;">${isCorrect ? '+2 pts' : '0 pts'}</div>
         </div>
         <div class="review-text">${q.text}</div>
-        <div class="review-answer"><strong>Your answer (${correctOption.label}):</strong> ${userOption.text}</div>
+        <div class="review-answer"><strong>Your answer (${userOption.label}):</strong> ${userOption.text}</div>
         ${!isCorrect ? `<div class="review-answer" style="color: var(--success);"><strong>Correct answer (${correctOption.label}):</strong> ${correctOption.text}</div>` : ''}
         <div class="review-explanation">💡 ${q.explanation}</div>
       </div>`;
