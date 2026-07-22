@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Readiness Assessment — Praxis Advisory</title>
+<style>
+  :root {
+    --navy: #1B365D;
+    --gold: #B8956A;
+    --bg: #F4F5F7;
+    --text: #2D3748;
+    --subtitle: #718096;
+    --white: #FFFFFF;
+    --lightGold: #F5EDE3;
+    --success: #2D8659;
+    --warning: #D4791C;
+    --danger: #C53030;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .header {
+    background: var(--navy);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .header .gold-bar { width: 4px; height: 32px; background: var(--gold); border-radius: 2px; }
+  .header h1 { color: var(--white); font-size: 18px; font-weight: 600; letter-spacing: 1px; }
+  .header .subtitle { color: var(--gold); font-size: 12px; letter-spacing: 2px; }
+  .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+  .progress-container { margin-bottom: 32px; }
+  .progress-bar { height: 4px; background: #E2E8F0; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--gold); transition: width 0.4s ease; border-radius: 2px; }
+  .progress-text { font-size: 12px; color: var(--subtitle); margin-top: 8px; text-align: right; }
+  .question-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 32px;
+    margin-bottom: 24px;
+    border-left: 4px solid var(--gold);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .question-number { font-size: 11px; color: var(--gold); font-weight: 600; letter-spacing: 2px; margin-bottom: 8px; }
+  .question-text { font-size: 18px; font-weight: 600; color: var(--navy); margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    display: flex; align-items: center; padding: 14px 18px;
+    border: 2px solid #E2E8F0; border-radius: 8px;
+    cursor: pointer; transition: all 0.2s; font-size: 14px;
+  }
+  .option:hover { border-color: var(--gold); background: var(--lightGold); }
+  .option.selected { border-color: var(--gold); background: var(--lightGold); font-weight: 600; }
+  .option .radio {
+    width: 18px; height: 18px; border: 2px solid #CBD5E0; border-radius: 50%;
+    margin-right: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .option.selected .radio { border-color: var(--gold); background: var(--gold); }
+  .option.selected .radio::after { content: '✓'; color: white; font-size: 11px; font-weight: bold; }
+  .nav-buttons { display: flex; justify-content: space-between; margin-top: 32px; }
+  .btn {
+    padding: 12px 32px; border-radius: 6px; font-size: 14px;
+    font-weight: 600; cursor: pointer; border: none; transition: all 0.2s;
+  }
+  .btn-primary { background: var(--navy); color: var(--white); }
+  .btn-primary:hover { background: #2A4A7A; }
+  .btn-secondary { background: transparent; color: var(--subtitle); border: 1px solid #E2E8F0; }
+  .btn-secondary:hover { background: var(--white); }
+  .btn-gold { background: var(--gold); color: var(--white); }
+  .btn-gold:hover { background: #A37D55; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .results-page { display: none; }
+  .question-page { display: none; }
+  .question-page.active { display: block; }
+
+  /* Radar Chart */
+  .radar-container {
+    display: flex;
+    justify-content: center;
+    margin: 32px -40px;
+    overflow: visible;
+  }
+  .radar-svg { width: 100%; max-width: 550px; }
+
+  /* Score badge */
+  .score-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+  .score-badge.excellent { background: #C6F6D5; color: var(--success); }
+  .score-badge.good { background: var(--lightGold); color: var(--gold); }
+  .score-badge.fair { background: #FEEBC8; color: var(--warning); }
+  .score-badge.poor { background: #FED7D7; color: var(--danger); }
+
+  /* Dimension detail */
+  .dim-detail {
+    display: flex;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid #E2E8F0;
+  }
+  .dim-detail:last-child { border-bottom: none; }
+  .dim-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    margin-right: 16px; flex-shrink: 0;
+  }
+  .dim-info { flex: 1; }
+  .dim-name { font-size: 14px; font-weight: 600; color: var(--navy); }
+  .dim-desc { font-size: 12px; color: var(--subtitle); margin-top: 2px; }
+  .dim-score {
+    font-size: 20px; font-weight: 700; color: var(--navy);
+    min-width: 50px; text-align: right;
+  }
+  .dim-bar {
+    width: 120px; height: 6px; background: #E2E8F0; border-radius: 3px;
+    margin-left: 16px; overflow: hidden;
+  }
+  .dim-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+
+  /* Recommendations */
+  .recommendation {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+    border-left: 4px solid var(--gold);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .recommendation h3 { font-size: 15px; color: var(--navy); margin-bottom: 6px; }
+  .recommendation p { font-size: 13px; color: var(--text); line-height: 1.6; }
+  .tag {
+    display: inline-block; padding: 3px 10px; border-radius: 12px;
+    font-size: 10px; font-weight: 600; margin-top: 8px;
+  }
+  .tag-priority { background: #FED7D7; color: var(--danger); }
+  .tag-recommend { background: #C6F6D5; color: var(--success); }
+  .tag-optional { background: #E2E8F0; color: var(--subtitle); }
+  .footer {
+    text-align: center; padding: 32px; color: var(--subtitle); font-size: 12px;
+  }
+  .footer a { color: var(--gold); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="gold-bar"></div>
+  <div>
+    <div class="subtitle">STONEHENGE UNIVERSITY LEADERSHIP PROGRAM</div>
+    <h1>AI Readiness Assessment</h1>
+  </div>
+</div>
+
+<div class="container">
+  <div class="progress-container">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+    </div>
+    <div class="progress-text" id="progressText">Question 0 of 10</div>
+  </div>
+
+  <div id="questionsContainer"></div>
+
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" id="prevBtn" onclick="prevQuestion()" disabled>← Back</button>
+    <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">Next →</button>
+  </div>
+
+  <div class="results-page" id="resultsPage">
+    <div style="text-align: center; margin-bottom: 24px;">
+      <div style="width: 4px; height: 40px; background: var(--gold); margin: 0 auto 16px; border-radius: 2px;"></div>
+      <h2 style="font-size: 26px; color: var(--navy); margin-bottom: 8px;">Your AI Readiness Profile</h2>
+      <p style="color: var(--subtitle); font-size: 14px;">Based on your responses, here's where your organization stands.</p>
+    </div>
+
+    <div style="text-align: center;">
+      <div class="score-badge" id="scoreBadge">
+        <span id="scoreIcon">●</span>
+        <span id="scoreText"></span>
+      </div>
+    </div>
+
+    <!-- Radar Chart -->
+    <div class="radar-container">
+      <svg class="radar-svg" viewBox="-120 -30 640 460" id="radarChart"></svg>
+    </div>
+
+    <h3 style="font-size: 13px; color: var(--gold); letter-spacing: 2px; margin: 24px 0 12px;">DIMENSION BREAKDOWN</h3>
+    <div id="dimDetails" style="background: var(--white); border-radius: 8px; padding: 16px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);"></div>
+
+    <h3 style="font-size: 13px; color: var(--gold); letter-spacing: 2px; margin: 24px 0 12px;">RECOMMENDATIONS</h3>
+    <div id="recommendations"></div>
+
+    <div style="text-align: center; margin-top: 32px;">
+      <button class="btn btn-gold" onclick="resetAssessment()">Retake Assessment</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    AI Readiness Assessment — Stonehenge University Leadership Program<br>
+    <a href="#">Praxis Advisory</a> | August 2026
+  </div>
+</div>
+
+<script>
+// 5 consolidated dimensions
+const dimensions = {
+  data:     { label: "Data & Governance", color: "#2D8659" },
+  tech:     { label: "Technology", color: "#B8956A" },
+  people:   { label: "People & Culture", color: "#1B365D" },
+  growth:   { label: "Growth Strategy", color: "#C53030" },
+  process:  { label: "Process Integration", color: "#4A90D9" }
+};
+
+const questions = [
+  {
+    dim: "data",
+    text: "How frequently does your team currently use AI tools?",
+    options: [
+      { text: "Never / Not at all", score: 1 },
+      { text: "Occasionally (a few times a month)", score: 2 },
+      { text: "Weekly", score: 3 },
+      { text: "Daily", score: 4 }
+    ]
+  },
+  {
+    dim: "data",
+    text: "Is your core business data digitized and accessible?",
+    options: [
+      { text: "Mostly paper-based or siloed", score: 1 },
+      { text: "Partially digitized (some systems)", score: 2 },
+      { text: "Fully digitized across main systems", score: 3 },
+      { text: "Centralized data platform with governance", score: 4 }
+    ]
+  },
+  {
+    dim: "tech",
+    text: "Can your current IT infrastructure support AI deployment?",
+    options: [
+      { text: "Traditional IT — legacy systems", score: 1 },
+      { text: "Partially cloud-based", score: 2 },
+      { text: "Hybrid cloud with modern stack", score: 3 },
+      { text: "AI-ready infrastructure (GPU, MLOps)", score: 4 }
+    ]
+  },
+  {
+    dim: "tech",
+    text: "How well do you understand AI compliance risks? (privacy, copyright, bias)",
+    options: [
+      { text: "Not familiar", score: 1 },
+      { text: "Aware but no formal framework", score: 2 },
+      { text: "Have guidelines in place", score: 3 },
+      { text: "Comprehensive governance framework", score: 4 }
+    ]
+  },
+  {
+    dim: "people",
+    text: "Does your team have AI / data talent and skills?",
+    options: [
+      { text: "No dedicated AI/data people", score: 1 },
+      { text: "1-2 people with some AI knowledge", score: 2 },
+      { text: "Small team (3-5) with AI capabilities", score: 3 },
+      { text: "Dedicated AI team or center of excellence", score: 4 }
+    ]
+  },
+  {
+    dim: "people",
+    text: "What's your management's attitude toward AI?",
+    options: [
+      { text: "Skeptical / wait and see", score: 1 },
+      { text: "Supportive but no action yet", score: 2 },
+      { text: "Actively driving AI initiatives", score: 3 },
+      { text: "AI is a top strategic priority", score: 4 }
+    ]
+  },
+  {
+    dim: "growth",
+    text: "Do you already have AI-related budget or active projects?",
+    options: [
+      { text: "No — not yet considering", score: 1 },
+      { text: "Evaluating / in discussion phase", score: 2 },
+      { text: "Yes — pilot projects running", score: 3 },
+      { text: "Yes — scaled deployment across functions", score: 4 }
+    ]
+  },
+  {
+    dim: "growth",
+    text: "What's the biggest potential value of AI for your business?",
+    options: [
+      { text: "Cost reduction & efficiency", score: 1 },
+      { text: "Improved customer experience", score: 2 },
+      { text: "Product/service innovation", score: 3 },
+      { text: "New revenue streams & business models", score: 4 }
+    ]
+  },
+  {
+    dim: "process",
+    text: "Do you have cross-department data sharing and workflow integration?",
+    options: [
+      { text: "No — each department has its own silos", score: 1 },
+      { text: "Rarely — some ad-hoc sharing", score: 2 },
+      { text: "Yes — regular sharing via common platforms", score: 3 },
+      { text: "Fully integrated — real-time cross-system", score: 4 }
+    ]
+  },
+  {
+    dim: "process",
+    text: "Which business processes are most time-consuming / repetitive?",
+    options: [
+      { text: "Administrative / manual tasks", score: 1 },
+      { text: "Customer service & support", score: 2 },
+      { text: "Content creation & marketing", score: 3 },
+      { text: "Sales enablement & strategic decisions", score: 4 }
+    ]
+  }
+];
+
+let currentQuestion = 0;
+let answers = {};
+
+function renderQuestions() {
+  const container = document.getElementById('questionsContainer');
+  container.innerHTML = '';
+  questions.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = `question-page ${i === 0 ? 'active' : ''}`;
+    div.id = `question-${i}`;
+    div.innerHTML = `
+      <div class="question-card">
+        <div class="question-number">QUESTION ${String(i+1).padStart(2, '0')} · ${dimensions[q.dim].label.toUpperCase()}</div>
+        <div class="question-text">${q.text}</div>
+        <div class="options">
+          ${q.options.map((opt, j) => `
+            <div class="option" id="opt-${i}-${j}" onclick="selectOption(${i}, ${j})">
+              <div class="radio"></div>
+              <span>${opt.text}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+function selectOption(qIdx, optIdx) {
+  questions[qIdx].options.forEach((_, j) => {
+    document.getElementById(`opt-${qIdx}-${j}`).classList.remove('selected');
+  });
+  document.getElementById(`opt-${qIdx}-${optIdx}`).classList.add('selected');
+  answers[qIdx] = optIdx;
+  updateProgress();
+  updateNavButtons();
+}
+
+function nextQuestion() {
+  if (currentQuestion < questions.length - 1) {
+    document.getElementById(`question-${currentQuestion}`).classList.remove('active');
+    currentQuestion++;
+    document.getElementById(`question-${currentQuestion}`).classList.add('active');
+    updateProgress(); updateNavButtons();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else if (Object.keys(answers).length === questions.length) {
+    showResults();
+  }
+}
+
+function prevQuestion() {
+  if (currentQuestion > 0) {
+    document.getElementById(`question-${currentQuestion}`).classList.remove('active');
+    currentQuestion--;
+    document.getElementById(`question-${currentQuestion}`).classList.add('active');
+    updateProgress(); updateNavButtons();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function updateProgress() {
+  const answered = Object.keys(answers).length;
+  document.getElementById('progressFill').style.width = `${(answered / questions.length) * 100}%`;
+  document.getElementById('progressText').textContent = `Question ${currentQuestion + 1} of ${questions.length} · ${answered} answered`;
+}
+
+function updateNavButtons() {
+  document.getElementById('prevBtn').disabled = currentQuestion === 0;
+  const nextBtn = document.getElementById('nextBtn');
+  if (currentQuestion === questions.length - 1) {
+    const allAnswered = Object.keys(answers).length === questions.length;
+    nextBtn.textContent = allAnswered ? 'See Results →' : 'Answer all to continue';
+    nextBtn.disabled = !allAnswered;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.disabled = false;
+  }
+}
+
+function getDimScores() {
+  const scores = {};
+  Object.keys(dimensions).forEach(d => scores[d] = []);
+  questions.forEach((q, i) => {
+    if (answers[i] !== undefined) {
+      scores[q.dim].push(q.options[answers[i]].score);
+    }
+  });
+  const result = {};
+  Object.entries(scores).forEach(([dim, vals]) => {
+    if (vals.length > 0) {
+      const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+      result[dim] = Math.round((avg / 4) * 100);
+    }
+  });
+  return result;
+}
+
+function getOverallScore(dimScores) {
+  const vals = Object.values(dimScores);
+  return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+}
+
+function drawRadar(dimScores) {
+  const svg = document.getElementById('radarChart');
+  const cx = 200, cy = 200, maxR = 120;
+  const dims = Object.keys(dimensions);
+  const n = dims.length;
+  const angleStep = (2 * Math.PI) / n;
+  const startAngle = -Math.PI / 2;
+
+  let html = '';
+
+  // Grid circles
+  [0.25, 0.5, 0.75, 1].forEach(pct => {
+    const r = maxR * pct;
+    html += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#E2E8F0" stroke-width="1"/>`;
+  });
+
+  // Grid lines
+  dims.forEach((_, i) => {
+    const angle = startAngle + i * angleStep;
+    const x2 = cx + maxR * Math.cos(angle);
+    const y2 = cy + maxR * Math.sin(angle);
+    html += `<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="#E2E8F0" stroke-width="1"/>`;
+  });
+
+  // Data polygon
+  let points = '';
+  dims.forEach((dim, i) => {
+    const angle = startAngle + i * angleStep;
+    const r = (dimScores[dim] || 0) / 100 * maxR;
+    const x = cx + r * Math.cos(angle);
+    const y = cy + r * Math.sin(angle);
+    points += `${x},${y} `;
+  });
+  html += `<polygon points="${points.trim()}" fill="rgba(184,149,106,0.2)" stroke="#B8956A" stroke-width="2"/>`;
+
+  // Data points
+  dims.forEach((dim, i) => {
+    const angle = startAngle + i * angleStep;
+    const r = (dimScores[dim] || 0) / 100 * maxR;
+    const x = cx + r * Math.cos(angle);
+    const y = cy + r * Math.sin(angle);
+    html += `<circle cx="${x}" cy="${y}" r="5" fill="${dimensions[dim].color}" stroke="white" stroke-width="2"/>`;
+  });
+
+  // Labels
+  dims.forEach((dim, i) => {
+    const angle = startAngle + i * angleStep;
+    const labelR = maxR + 35;
+    const x = cx + labelR * Math.cos(angle);
+    const y = cy + labelR * Math.sin(angle);
+    const score = dimScores[dim] || 0;
+    const anchor = Math.abs(Math.cos(angle)) < 0.1 ? 'middle' : Math.cos(angle) > 0 ? 'start' : 'end';
+
+    html += `<text x="${x}" y="${y - 8}" text-anchor="${anchor}" font-size="11" font-weight="600" fill="#1B365D" font-family="sans-serif">${dimensions[dim].label}</text>`;
+    html += `<text x="${x}" y="${y + 8}" text-anchor="${anchor}" font-size="10" fill="#718096" font-family="sans-serif">${score}/100</text>`;
+  });
+
+  svg.innerHTML = html;
+}
+
+function getScoreLevel(score) {
+  if (score >= 75) return { label: "Excellent", cls: "excellent", icon: "★★★" };
+  if (score >= 50) return { label: "Good", cls: "good", icon: "★★" };
+  if (score >= 30) return { label: "Developing", cls: "fair", icon: "★" };
+  return { label: "Early Stage", cls: "poor", icon: "○" };
+}
+
+function getRecommendations(score, dimScores) {
+  const recs = [];
+  const weakest = Object.entries(dimScores).sort((a, b) => a[1] - b[1])[0];
+
+  if (score >= 75) {
+    recs.push({ title: "🚀 Scale AI Across the Organization", desc: "You have strong foundations. Focus on scaling pilots, building an AI Center of Excellence, and exploring cross-business AI synergies.", tag: "priority" });
+  } else if (score >= 50) {
+    recs.push({ title: "📈 Accelerate with Focus", desc: "Pick 2-3 high-impact use cases, invest in data quality, and build internal AI talent. Don't try everything at once.", tag: "recommend" });
+  } else if (score >= 30) {
+    recs.push({ title: "🔧 Build Your Foundation", desc: "Before scaling AI, focus on fundamentals: digitize core data, establish governance, and build basic AI literacy.", tag: "priority" });
+  } else {
+    recs.push({ title: "📚 Start with AI Education", desc: "Begin with AI awareness workshops for leadership, run a small proof-of-concept, and assess your data readiness.", tag: "priority" });
+  }
+
+  if (weakest && weakest[1] < 50) {
+    const dimRecs = {
+      data: { title: "📊 Strengthen Data Foundation", desc: "Invest in data quality, consolidation, and governance. Clean data is the prerequisite for effective AI." },
+      tech: { title: "💻 Upgrade Technology Stack", desc: "Modernize infrastructure for AI readiness. Consider cloud migration and API-first architecture." },
+      people: { title: "👥 Build AI Talent", desc: "Invest in training, hire 1-2 AI specialists, and create an internal AI community. Leadership buy-in is critical." },
+      growth: { title: "🎯 Define AI Growth Strategy", desc: "Align AI initiatives with business growth goals. Identify high-ROI use cases and build a roadmap." },
+      process: { title: "🔄 Integrate AI into Workflows", desc: "Redesign key processes to leverage AI capabilities. Map workflows and identify automation opportunities." }
+    };
+    if (dimRecs[weakest[0]]) {
+      recs.push({ ...dimRecs[weakest[0]], tag: "recommend" });
+    }
+  }
+
+  recs.push({ title: "📋 Complete Your Personalized Assessment", desc: "This is a preview. The full interactive version with detailed scoring and personalized recommendations will be available before the session.", tag: "optional" });
+
+  return recs;
+}
+
+function showResults() {
+  document.getElementById('questionsContainer').style.display = 'none';
+  document.querySelector('.nav-buttons').style.display = 'none';
+  document.querySelector('.progress-container').style.display = 'none';
+  document.getElementById('resultsPage').style.display = 'block';
+
+  const dimScores = getDimScores();
+  const score = getOverallScore(dimScores);
+  const level = getScoreLevel(score);
+
+  // Score badge
+  const badge = document.getElementById('scoreBadge');
+  badge.className = `score-badge ${level.cls}`;
+  document.getElementById('scoreIcon').textContent = level.icon;
+  document.getElementById('scoreText').textContent = `${score}/100 — ${level.label}`;
+
+  // Radar
+  drawRadar(dimScores);
+
+  // Dimension details
+  const details = document.getElementById('dimDetails');
+  details.innerHTML = '';
+  Object.entries(dimScores).forEach(([dim, score]) => {
+    const d = dimensions[dim];
+    const s = getScoreLevel(score);
+    details.innerHTML += `
+      <div class="dim-detail">
+        <div class="dim-dot" style="background: ${d.color}"></div>
+        <div class="dim-info">
+          <div class="dim-name">${d.label}</div>
+        </div>
+        <div class="dim-score">${score}</div>
+        <div class="dim-bar">
+          <div class="dim-bar-fill" style="width: ${score}%; background: ${d.color}"></div>
+        </div>
+      </div>`;
+  });
+
+  // Recommendations
+  const recs = getRecommendations(score, dimScores);
+  const recsEl = document.getElementById('recommendations');
+  recsEl.innerHTML = '';
+  recs.forEach(rec => {
+    const tagCls = rec.tag === 'priority' ? 'tag-priority' : rec.tag === 'recommend' ? 'tag-recommend' : 'tag-optional';
+    const tagText = rec.tag === 'priority' ? 'PRIORITY' : rec.tag === 'recommend' ? 'RECOMMENDED' : 'NEXT STEP';
+    recsEl.innerHTML += `
+      <div class="recommendation">
+        <h3>${rec.title}</h3>
+        <p>${rec.desc}</p>
+        <span class="tag ${tagCls}">${tagText}</span>
+      </div>`;
+  });
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetAssessment() {
+  currentQuestion = 0;
+  answers = {};
+  document.getElementById('questionsContainer').style.display = 'block';
+  document.querySelector('.nav-buttons').style.display = 'flex';
+  document.querySelector('.progress-container').style.display = 'block';
+  document.getElementById('resultsPage').style.display = 'none';
+  questions.forEach((_, i) => {
+    questions[i].options.forEach((_, j) => {
+      const el = document.getElementById(`opt-${i}-${j}`);
+      if (el) el.classList.remove('selected');
+    });
+  });
+  document.querySelectorAll('.question-page').forEach((p, i) => { p.classList.toggle('active', i === 0); });
+  updateProgress(); updateNavButtons();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+renderQuestions();
+updateProgress();
+updateNavButtons();
+</script>
+</body>
+</html>

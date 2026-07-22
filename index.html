@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Fluency Assessment — Sony Leadership Workshop</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1B365D;
+    --gold: #B8956A;
+    --bg: #F4F5F7;
+    --text: #2D3748;
+    --subtitle: #718096;
+    --white: #FFFFFF;
+    --lightGold: #F5EDE3;
+    --success: #2D8659;
+    --warning: #D4791C;
+    --danger: #C53030;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: var(--navy);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .header .gold-bar { width: 4px; height: 32px; background: var(--gold); border-radius: 2px; }
+  .header h1 { color: var(--white); font-size: 18px; font-weight: 600; letter-spacing: 1px; }
+  .header .subtitle { color: var(--gold); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; }
+
+  /* Container */
+  .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+
+  /* Intro Card */
+  .intro-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 32px;
+    margin-bottom: 32px;
+    border-left: 4px solid var(--gold);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .intro-card h2 { font-size: 20px; color: var(--navy); margin-bottom: 12px; }
+  .intro-card p { font-size: 14px; color: var(--text); margin-bottom: 10px; }
+  .intro-card .note {
+    background: var(--lightGold);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--navy);
+    font-weight: 500;
+    margin-top: 16px;
+  }
+  .intro-card .note strong { color: var(--gold); }
+
+  /* Progress */
+  .progress-container { margin-bottom: 32px; }
+  .progress-bar { height: 4px; background: #E2E8F0; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--gold); transition: width 0.4s ease; border-radius: 2px; }
+  .progress-text { font-size: 12px; color: var(--subtitle); margin-top: 8px; text-align: right; }
+
+  /* Question Card */
+  .question-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 32px;
+    margin-bottom: 24px;
+    border-left: 4px solid var(--gold);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .question-number { font-size: 11px; color: var(--gold); font-weight: 600; letter-spacing: 2px; margin-bottom: 8px; }
+  .question-text { font-size: 17px; font-weight: 600; color: var(--navy); margin-bottom: 20px; line-height: 1.5; }
+
+  /* Options */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    display: flex; align-items: flex-start; padding: 14px 18px;
+    border: 2px solid #E2E8F0; border-radius: 8px;
+    cursor: pointer; transition: all 0.2s; font-size: 14px; line-height: 1.5;
+  }
+  .option:hover { border-color: var(--gold); background: var(--lightGold); }
+  .option.selected { border-color: var(--gold); background: var(--lightGold); font-weight: 500; }
+  .option .radio {
+    width: 18px; height: 18px; border: 2px solid #CBD5E0; border-radius: 50%;
+    margin-right: 12px; margin-top: 1px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .option.selected .radio { border-color: var(--gold); background: var(--gold); }
+  .option.selected .radio::after { content: '✓'; color: white; font-size: 11px; font-weight: bold; }
+
+  /* Nav Buttons */
+  .nav-buttons { display: flex; justify-content: space-between; margin-top: 32px; }
+  .btn {
+    padding: 12px 32px; border-radius: 6px; font-size: 14px;
+    font-weight: 600; cursor: pointer; border: none; transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+  .btn-primary { background: var(--navy); color: var(--white); }
+  .btn-primary:hover { background: #2A4A7A; }
+  .btn-secondary { background: transparent; color: var(--subtitle); border: 1px solid #E2E8F0; }
+  .btn-secondary:hover { background: var(--white); }
+  .btn-gold { background: var(--gold); color: var(--white); }
+  .btn-gold:hover { background: #A37D55; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Question Pages */
+  .results-page { display: none; }
+  .question-page { display: none; }
+  .question-page.active { display: block; }
+  .intro-section { display: block; }
+  .intro-section.hidden { display: none; }
+
+  /* Score Badge */
+  .score-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+  .score-badge.level-4 { background: #C6F6D5; color: var(--success); }
+  .score-badge.level-3 { background: var(--lightGold); color: var(--gold); }
+  .score-badge.level-2 { background: #FEEBC8; color: var(--warning); }
+  .score-badge.level-1 { background: #FED7D7; color: var(--danger); }
+
+  /* Level Description Card */
+  .level-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 24px;
+    border-left: 4px solid var(--gold);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .level-card h3 { font-size: 16px; color: var(--navy); margin-bottom: 8px; }
+  .level-card p { font-size: 13px; color: var(--text); line-height: 1.6; }
+
+  /* Score Breakdown */
+  .score-breakdown {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .score-breakdown h3 {
+    font-size: 13px; color: var(--gold); letter-spacing: 2px; margin-bottom: 16px;
+  }
+  .score-visual {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .score-circle {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .score-circle .score-num { font-size: 28px; font-weight: 700; color: var(--white); }
+  .score-circle .score-denom { font-size: 14px; color: rgba(255,255,255,0.8); }
+  .score-detail-text { font-size: 14px; color: var(--text); }
+  .score-detail-text strong { color: var(--navy); }
+
+  /* Level Scale */
+  .level-scale {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .level-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    transition: all 0.2s;
+  }
+  .level-row.active { background: var(--lightGold); font-weight: 600; }
+  .level-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  .level-row .level-range { color: var(--subtitle); min-width: 50px; }
+  .level-row .level-label { color: var(--text); flex: 1; }
+
+  /* Question Review */
+  .review-section h3 {
+    font-size: 13px; color: var(--gold); letter-spacing: 2px; margin: 24px 0 12px;
+  }
+  .review-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    border-left: 4px solid transparent;
+  }
+  .review-card.correct { border-left-color: var(--success); }
+  .review-card.incorrect { border-left-color: var(--danger); }
+  .review-header {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+  }
+  .review-icon {
+    width: 20px; height: 20px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: bold; color: white; flex-shrink: 0;
+  }
+  .review-icon.correct { background: var(--success); }
+  .review-icon.incorrect { background: var(--danger); }
+  .review-qnum { font-size: 11px; color: var(--gold); font-weight: 600; letter-spacing: 1px; }
+  .review-text { font-size: 14px; font-weight: 500; color: var(--navy); margin-bottom: 8px; }
+  .review-answer { font-size: 13px; color: var(--text); margin-bottom: 4px; }
+  .review-answer strong { color: var(--navy); }
+  .review-explanation {
+    font-size: 12px; color: var(--subtitle); line-height: 1.5;
+    padding: 8px 12px; background: var(--bg); border-radius: 4px; margin-top: 8px;
+  }
+
+  /* Share Results */
+  .share-section {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 24px;
+    margin-top: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .share-section h3 {
+    font-size: 13px; color: var(--gold); letter-spacing: 2px; margin-bottom: 12px;
+  }
+  .share-box {
+    background: var(--bg);
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    padding: 16px;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-line;
+  }
+  .share-actions {
+    display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center; padding: 32px; color: var(--subtitle); font-size: 12px;
+  }
+  .footer a { color: var(--gold); text-decoration: none; }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .header { padding: 16px 20px; }
+    .header h1 { font-size: 15px; }
+    .container { padding: 24px 16px; }
+    .intro-card, .question-card { padding: 24px 20px; }
+    .question-text { font-size: 15px; }
+    .option { padding: 12px 14px; font-size: 13px; }
+    .btn { padding: 10px 24px; font-size: 13px; }
+    .score-visual { flex-direction: column; text-align: center; }
+    .review-card { padding: 16px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="gold-bar"></div>
+  <div>
+    <div class="subtitle">SONY LEADERSHIP WORKSHOP</div>
+    <h1>AI Fluency Assessment</h1>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Intro Section -->
+  <div class="intro-section" id="introSection">
+    <div class="intro-card">
+      <h2>Welcome to Your AI Fluency Assessment</h2>
+      <p>This self-diagnostic is designed to help you understand your current level of AI literacy — not as a test, but as a starting point for a meaningful conversation with your peers about AI readiness in your organization.</p>
+      <p>You will answer <strong>8 scenario-based questions</strong>. Each correct answer earns <strong>2 points</strong>, for a total of <strong>16 points</strong>. Your score will map to one of four fluency levels.</p>
+      <div class="note">
+        <strong>💡 Remember:</strong> There are no "stupid" answers here. Every response helps paint a picture of where you are on your AI journey, and that's exactly what this exercise is for.
+      </div>
+      <div style="text-align: right; margin-top: 20px;">
+        <button class="btn btn-gold" onclick="startAssessment()">Begin Assessment →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Assessment Section -->
+  <div id="assessmentSection" style="display: none;">
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+      </div>
+      <div class="progress-text" id="progressText">Question 1 of 8 · 0 answered</div>
+    </div>
+
+    <div id="questionsContainer"></div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-secondary" id="prevBtn" onclick="prevQuestion()" disabled>← Back</button>
+      <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">Next →</button>
+    </div>
+  </div>
+
+  <!-- Results Section -->
+  <div class="results-page" id="resultsPage">
+    <div style="text-align: center; margin-bottom: 24px;">
+      <div style="width: 4px; height: 40px; background: var(--gold); margin: 0 auto 16px; border-radius: 2px;"></div>
+      <h2 style="font-size: 26px; color: var(--navy); margin-bottom: 8px;">Your AI Fluency Profile</h2>
+      <p style="color: var(--subtitle); font-size: 14px;">Based on your responses, here's where you stand on the AI fluency spectrum.</p>
+    </div>
+
+    <div style="text-align: center;">
+      <div class="score-badge" id="scoreBadge">
+        <span id="scoreIcon">●</span>
+        <span id="scoreText"></span>
+      </div>
+    </div>
+
+    <!-- Score Breakdown -->
+    <div class="score-breakdown">
+      <h3>SCORE OVERVIEW</h3>
+      <div class="score-visual">
+        <div class="score-circle" id="scoreCircle">
+          <div style="text-align: center;">
+            <div class="score-num" id="scoreNum"></div>
+            <div class="score-denom">/ 16</div>
+          </div>
+        </div>
+        <div class="score-detail-text" id="scoreDetailText"></div>
+      </div>
+
+      <div class="level-scale" id="levelScale"></div>
+    </div>
+
+    <!-- Level Description -->
+    <div class="level-card" id="levelCard"></div>
+
+    <!-- Question Review -->
+    <div class="review-section">
+      <h3>QUESTION-BY-QUESTION REVIEW</h3>
+      <div id="reviewCards"></div>
+    </div>
+
+    <!-- Share Results -->
+    <div class="share-section">
+      <h3>SHARE YOUR RESULTS</h3>
+      <div class="share-box" id="shareText"></div>
+      <div class="share-actions">
+        <button class="btn btn-primary" onclick="copyShareText()">📋 Copy Summary</button>
+        <button class="btn btn-secondary" onclick="resetAssessment()">↩ Retake Assessment</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    AI Fluency Assessment — Sony Leadership Workshop<br>
+    <a href="#">Praxis Advisory</a> | July 2026
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    id: 1,
+    text: "If a colleague says \"AI answers sound convincing so they are probably correct,\" what is the best response?",
+    category: "AI Literacy",
+    options: [
+      { label: "A", text: "They are right — AI is trained on huge amounts of data and rarely makes mistakes." },
+      { label: "B", text: "That's not always true — AI can generate plausible-sounding but incorrect content. We should verify the output." },
+      { label: "C", text: "AI doesn't really \"understand\" anything, so all its answers are equally useless." },
+      { label: "D", text: "Just ask the AI to double-check itself — if it confirms, it must be correct." }
+    ],
+    correct: 1, // B (index 1)
+    explanation: "AI models can produce confident, fluent text that is factually wrong — often called 'hallucination.' The correct approach is always to verify AI output against reliable sources. Blind trust in AI outputs is one of the most common pitfalls in AI adoption."
+  },
+  {
+    id: 2,
+    text: "Which example best reflects a proper human-in-the-loop setup?",
+    category: "Human-AI Collaboration",
+    options: [
+      { label: "A", text: "AI automatically approves all loan applications without any human review." },
+      { label: "B", text: "AI provides a risk recommendation, and a human underwriter reviews it and makes the final decision." },
+      { label: "C", text: "A human writes the first draft and then lets AI completely rewrite it without review." },
+      { label: "D", text: "AI handles all customer complaints, and humans only get involved if a customer explicitly asks." }
+    ],
+    correct: 1, // B (index 1)
+    explanation: "A proper human-in-the-loop system means AI assists by providing analysis or recommendations, but a qualified human makes the final judgment. This balances AI's speed and pattern-recognition strengths with human judgment, accountability, and contextual understanding."
+  },
+  {
+    id: 3,
+    text: "Which is least appropriate to paste directly into a public generative AI tool?",
+    category: "Data Security & Privacy",
+    options: [
+      { label: "A", text: "A public press release draft for review." },
+      { label: "B", text: "Internal meeting notes with no customer data." },
+      { label: "C", text: "An Excel file with customer names and purchase records." },
+      { label: "D", text: "A generic template for internal HR communications." }
+    ],
+    correct: 2, // C (index 2)
+    explanation: "Customer data (PII — personally identifiable information) should never be entered into public AI tools without proper data processing agreements. Public tools may store, train on, or leak sensitive information, creating GDPR/compliance risks. Always check your company's data policy before using external AI."
+  },
+  {
+    id: 4,
+    text: "If a company buys AI tools but employees do not change how they work, what is the most likely issue?",
+    category: "Change Management",
+    options: [
+      { label: "A", text: "The AI tools are not good enough yet." },
+      { label: "B", text: "The employees are not technical enough." },
+      { label: "C", text: "The real bottleneck is change management, not technology." },
+      { label: "D", text: "AI tools don't actually help in a business context." }
+    ],
+    correct: 2, // C (index 2)
+    explanation: "Technology alone doesn't create value — people need to change their workflows, habits, and mindset. Successful AI adoption requires training, clear communication about new processes, leadership support, and often a cultural shift. Change management is consistently the biggest barrier to AI ROI."
+  },
+  {
+    id: 5,
+    text: "Which best reflects a higher level of AI fluency?",
+    category: "Strategic Thinking",
+    options: [
+      { label: "A", text: "Knowing how to write detailed prompts for ChatGPT." },
+      { label: "B", text: "Understanding AI's limitations and being able to judge which business problems are suitable for AI." },
+      { label: "C", text: "Being able to build a machine learning model from scratch." },
+      { label: "D", text: "Using AI to replace as many human workers as possible." }
+    ],
+    correct: 1, // B (index 1)
+    explanation: "True AI fluency goes beyond knowing how to use tools — it's about understanding what AI can and cannot do, and strategically evaluating where it adds real value. Leaders need this judgment to allocate resources wisely and avoid costly AI initiatives that don't solve real problems."
+  },
+  {
+    id: 6,
+    text: "If AI generates marketing copy, what is the most appropriate next step?",
+    category: "Quality Assurance",
+    options: [
+      { label: "A", text: "Publish it immediately — AI-generated content is usually good enough." },
+      { label: "B", text: "Have another AI tool review it for quality." },
+      { label: "C", text: "A business owner reviews it for facts, tone, and brand consistency." },
+      { label: "D", text: "Send it to the legal department to check for copyright issues." }
+    ],
+    correct: 2, // C (index 2)
+    explanation: "While AI can produce drafts efficiently, human review is essential for factual accuracy, brand voice consistency, emotional appropriateness, and strategic alignment. The business owner or subject-matter expert is best positioned to judge whether the content serves its intended purpose."
+  },
+  {
+    id: 7,
+    text: "Which is most clearly a responsible AI issue rather than just a technical issue?",
+    category: "Ethics & Responsibility",
+    options: [
+      { label: "A", text: "The model's accuracy dropped because training data was outdated." },
+      { label: "B", text: "The AI system runs slowly because of insufficient computing resources." },
+      { label: "C", text: "A hiring model systematically disadvantages a group of applicants." },
+      { label: "D", text: "The chatbot sometimes gives irrelevant answers." }
+    ],
+    correct: 2, // C (index 2)
+    explanation: "When an AI system systematically discriminates against a group, it's a fairness and ethics problem with real-world consequences — not just a technical bug. Responsible AI requires proactive monitoring for bias, equitable outcomes, and accountability structures that go well beyond engineering fixes."
+  },
+  {
+    id: 8,
+    text: "If a company wants to identify AI opportunities, what is usually the best starting point?",
+    category: "Strategic Planning",
+    options: [
+      { label: "A", text: "Buy the latest AI tool and figure out how to use it later." },
+      { label: "B", text: "Ask the IT department which AI tools they recommend." },
+      { label: "C", text: "Start from business goals, process pain points, and high-value decisions." },
+      { label: "D", text: "Benchmark what competitors are doing and copy their approach." }
+    ],
+    correct: 2, // C (index 2)
+    explanation: "The most effective AI adoption starts with the business problem, not the technology. Identifying high-impact pain points, expensive decisions, and bottlenecks ensures AI investments align with real organizational needs and deliver measurable ROI. Technology should serve the strategy, not the other way around."
+  }
+];
+
+const levels = [
+  { range: "0–6", label: "Level 1 — AI Awareness", class: "level-1", color: "var(--danger)",
+    description: "You are at the awareness stage of AI fluency. You recognize AI exists but may have gaps in understanding its capabilities, limitations, and how to use it responsibly. This is a great starting point — many leaders are in this stage and it simply means there's a valuable learning journey ahead.",
+    recommendation: "Focus on building foundational AI literacy. Hands-on workshops, peer discussions, and experimenting with AI tools in low-risk scenarios will rapidly build your confidence." },
+  { range: "7–10", label: "Level 2 — AI Usage", class: "level-2", color: "var(--warning)",
+    description: "You demonstrate practical usage of AI and understand some of its limitations. You're comfortable with AI tools but may still be developing deeper strategic thinking about where and when to apply AI in your business context.",
+    recommendation: "Deepen your understanding by exploring AI's failure modes and edge cases. Practice evaluating AI outputs critically and start identifying AI opportunities aligned with your business goals." },
+  { range: "11–13", label: "Level 3 — Applied Understanding", class: "level-3", color: "var(--gold)",
+    description: "You have a solid applied understanding of AI — its capabilities, limitations, ethical considerations, and strategic value. You can distinguish between good and bad AI use cases and understand the human factors in AI adoption.",
+    recommendation: "Leverage your fluency to lead AI initiatives in your team. Focus on change management, responsible AI governance, and identifying high-impact opportunities." },
+  { range: "14–16", label: "Level 4 — Strategic Fluency", class: "level-4", color: "var(--success)",
+    description: "Excellent — you demonstrate strategic AI fluency. You understand AI's potential and limitations deeply, can evaluate its fit for complex business problems, and think critically about responsible implementation. You're well-positioned to lead AI transformation.",
+    recommendation: "Share your knowledge with peers and help build organizational AI literacy. Focus on scaling responsible AI practices and exploring innovative applications that create competitive advantage." }
+];
+
+let currentQuestion = 0;
+let answers = {};
+
+function startAssessment() {
+  document.getElementById('introSection').classList.add('hidden');
+  document.getElementById('assessmentSection').style.display = 'block';
+  renderQuestions();
+  updateProgress();
+  updateNavButtons();
+}
+
+function renderQuestions() {
+  const container = document.getElementById('questionsContainer');
+  container.innerHTML = '';
+  questions.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = `question-page ${i === 0 ? 'active' : ''}`;
+    div.id = `question-${i}`;
+    div.innerHTML = `
+      <div class="question-card">
+        <div class="question-number">QUESTION ${String(i+1).padStart(2, '0')} · ${q.category.toUpperCase()}</div>
+        <div class="question-text">${q.text}</div>
+        <div class="options">
+          ${q.options.map((opt, j) => `
+            <div class="option" id="opt-${i}-${j}" onclick="selectOption(${i}, ${j})">
+              <div class="radio"></div>
+              <span><strong>${opt.label}.</strong> ${opt.text}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+function selectOption(qIdx, optIdx) {
+  questions[qIdx].options.forEach((_, j) => {
+    document.getElementById(`opt-${qIdx}-${j}`).classList.remove('selected');
+  });
+  document.getElementById(`opt-${qIdx}-${optIdx}`).classList.add('selected');
+  answers[qIdx] = optIdx;
+  updateProgress();
+  updateNavButtons();
+}
+
+function nextQuestion() {
+  if (currentQuestion < questions.length - 1) {
+    document.getElementById(`question-${currentQuestion}`).classList.remove('active');
+    currentQuestion++;
+    document.getElementById(`question-${currentQuestion}`).classList.add('active');
+    updateProgress(); updateNavButtons();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else if (Object.keys(answers).length === questions.length) {
+    showResults();
+  }
+}
+
+function prevQuestion() {
+  if (currentQuestion > 0) {
+    document.getElementById(`question-${currentQuestion}`).classList.remove('active');
+    currentQuestion--;
+    document.getElementById(`question-${currentQuestion}`).classList.add('active');
+    updateProgress(); updateNavButtons();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function updateProgress() {
+  const answered = Object.keys(answers).length;
+  document.getElementById('progressFill').style.width = `${(answered / questions.length) * 100}%`;
+  document.getElementById('progressText').textContent = `Question ${currentQuestion + 1} of ${questions.length} · ${answered} answered`;
+}
+
+function updateNavButtons() {
+  document.getElementById('prevBtn').disabled = currentQuestion === 0;
+  const nextBtn = document.getElementById('nextBtn');
+  if (currentQuestion === questions.length - 1) {
+    const allAnswered = Object.keys(answers).length === questions.length;
+    nextBtn.textContent = allAnswered ? 'See Results →' : 'Answer all to continue';
+    nextBtn.disabled = !allAnswered;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.disabled = false;
+  }
+}
+
+function calculateScore() {
+  let score = 0;
+  questions.forEach((q, i) => {
+    if (answers[i] === q.correct) {
+      score += 2;
+    }
+  });
+  return score;
+}
+
+function getLevel(score) {
+  for (const level of levels) {
+    const [min, max] = level.range.split('–').map(Number);
+    if (score >= min && score <= max) return level;
+  }
+  return levels[0];
+}
+
+function showResults() {
+  document.getElementById('assessmentSection').style.display = 'none';
+  document.getElementById('resultsPage').style.display = 'block';
+
+  const score = calculateScore();
+  const level = getLevel(score);
+  const correctCount = score / 2;
+
+  // Score badge
+  const badge = document.getElementById('scoreBadge');
+  badge.className = `score-badge ${level.class}`;
+  document.getElementById('scoreIcon').textContent = level.class === 'level-4' ? '★' : level.class === 'level-3' ? '●' : level.class === 'level-2' ? '◆' : '○';
+  document.getElementById('scoreText').textContent = `${score}/16 — ${level.label}`;
+
+  // Score circle
+  const circle = document.getElementById('scoreCircle');
+  circle.style.background = level.color;
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreDetailText').innerHTML = `You answered <strong>${correctCount} out of ${questions.length}</strong> questions correctly. Each correct answer is worth 2 points.`;
+
+  // Level scale
+  const scaleEl = document.getElementById('levelScale');
+  scaleEl.innerHTML = '';
+  levels.forEach(l => {
+    const isActive = l.range === level.range;
+    scaleEl.innerHTML += `
+      <div class="level-row ${isActive ? 'active' : ''}">
+        <div class="level-dot" style="background: ${l.color}"></div>
+        <div class="level-range">${l.range} pts</div>
+        <div class="level-label">${l.label.replace('Level 1 — ', 'L1: ').replace('Level 2 — ', 'L2: ').replace('Level 3 — ', 'L3: ').replace('Level 4 — ', 'L4: ')}</div>
+        ${isActive ? '<div style="color: var(--gold); font-size: 11px;">← YOU ARE HERE</div>' : ''}
+      </div>`;
+  });
+
+  // Level description
+  const levelCard = document.getElementById('levelCard');
+  levelCard.innerHTML = `
+    <h3>${level.label}</h3>
+    <p>${level.description}</p>
+    <p style="margin-top: 12px;"><strong style="color: var(--gold);">Recommended Next Steps:</strong> ${level.recommendation}</p>`;
+
+  // Question review
+  const reviewEl = document.getElementById('reviewCards');
+  reviewEl.innerHTML = '';
+  questions.forEach((q, i) => {
+    const userAnswer = answers[i];
+    const isCorrect = userAnswer === q.correct;
+    const correctOption = q.options[q.correct];
+    const userOption = q.options[userAnswer];
+
+    reviewEl.innerHTML += `
+      <div class="review-card ${isCorrect ? 'correct' : 'incorrect'}">
+        <div class="review-header">
+          <div class="review-icon ${isCorrect ? 'correct' : 'incorrect'}">${isCorrect ? '✓' : '✗'}</div>
+          <div class="review-qnum">QUESTION ${String(i+1).padStart(2, '0')}</div>
+          <div style="flex:1"></div>
+          <div style="font-size: 12px; color: ${isCorrect ? 'var(--success)' : 'var(--danger)'}; font-weight: 600;">${isCorrect ? '+2 pts' : '0 pts'}</div>
+        </div>
+        <div class="review-text">${q.text}</div>
+        <div class="review-answer"><strong>Your answer (${correctOption.label}):</strong> ${userOption.text}</div>
+        ${!isCorrect ? `<div class="review-answer" style="color: var(--success);"><strong>Correct answer (${correctOption.label}):</strong> ${correctOption.text}</div>` : ''}
+        <div class="review-explanation">💡 ${q.explanation}</div>
+      </div>`;
+  });
+
+  // Share text
+  const shareBox = document.getElementById('shareText');
+  shareBox.textContent = `AI Fluency Assessment Results\n${'─'.repeat(36)}\nScore: ${score}/16 (${correctCount}/${questions.length} correct)\nLevel: ${level.label}\n\nKey Takeaway: ${level.description.split('.')[0]}.\n\nHow did you do? Share your results and compare with your peers!`;
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function copyShareText() {
+  const text = document.getElementById('shareText').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    const original = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = original, 2000);
+  }).catch(() => {
+    // Fallback for older browsers
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    const btn = event.target;
+    const original = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = original, 2000);
+  });
+}
+
+function resetAssessment() {
+  currentQuestion = 0;
+  answers = {};
+  document.getElementById('assessmentSection').style.display = 'none';
+  document.getElementById('resultsPage').style.display = 'none';
+  document.getElementById('introSection').classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
