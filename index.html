@@ -124,7 +124,7 @@
     <p><span class="lang-en">This self-diagnostic is designed to help you understand your current level of AI literacy — not as a test, but as a starting point for a meaningful conversation with your peers about AI readiness in your organization.</span><span class="lang-zh">本自测工具旨在帮助您了解自身的 AI 素养水平——不是考试，而是与同事就组织 AI 就绪度展开深度对话的起点。</span></p>
     <p><span class="lang-en">You will answer <strong>8 scenario-based questions</strong>. Each correct answer earns <strong>2 points</strong>, for a total of <strong>16 points</strong>. Your score will map to one of four fluency levels.</span><span class="lang-zh">您将回答 <strong>8 道情景题</strong>，每答对一题得 <strong>2 分</strong>，满分 <strong>16 分</strong>。您的得分将对应四个流畅度等级之一。</span></p>
     <div class="note"><strong>💡 Remember / 记住：</strong> <span class="lang-en">There are no “stupid” answers here. Every response helps paint a picture of where you are on your AI journey, and that’s exactly what this exercise is for.</span><span class="lang-zh">这里没有“错误”答案。每个选择都能勾勒出您在 AI 旅程中的位置，这正是本练习的意义所在。</span></div>
-    <div style="text-align: right; margin-top: 20px;"><button class="btn btn-gold" onclick="startAssessment()">Begin Assessment → 开始评估</button></div>
+    <div style="text-align: right; margin-top: 20px;"><button class="btn btn-gold" id="startBtn" onclick="startAssessment()">Begin Assessment →</button></div>
   </div></div>
   <div id="assessmentSection" style="display: none;">
     <div class="progress-container"><div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%"></div></div><div class="progress-text" id="progressText">Question 1 of 8 · 0 answered</div></div>
@@ -265,6 +265,7 @@ function setLang(l) {
   if (l==='zh') document.body.classList.add('lang-mode-zh');
   document.querySelectorAll('.lang-toggle button').forEach(function(b){b.classList.remove('active');});
   document.getElementById(l==='en'?'btnEn':'btnZh').classList.add('active');
+  var sb=document.getElementById('startBtn');if(sb)sb.textContent=l==='zh'?'开始评估 →':'Begin Assessment \u2192';
   if (Object.keys(ans).length===qData.length && document.getElementById('resultsPage').style.display==='block') showResults();
 }
 
@@ -339,15 +340,12 @@ function showResults() {
     var ua=ans[i],ic=ua===q.correct,co=q.opts[q.correct],uo=q.opts[ua];
     re.innerHTML+='<div class="review-card '+(ic?'correct':'incorrect')+'"><div class="review-header"><div class="review-icon '+(ic?'correct':'incorrect')+'">'+(ic?'✓':'✗')+'</div><div class="review-qnum">QUESTION '+String(i+1).padStart(2,'0')+'</div><div style="flex:1"></div><div style="font-size:12px;color:'+(ic?'var(--success)':'var(--danger)')+';font-weight:600;">'+(ic?'+2 pts':'0 pts')+'</div></div><div class="review-text"><div class="lang-en">'+q.text+'</div><div class="lang-zh">'+q.zh+'</div></div><div class="review-answer"><strong>'+(curLang==='zh'?'您的答案':'Your answer')+' ('+uo.l+'):</strong> <div class="lang-en">'+uo.t+'</div><div class="lang-zh">'+uo.z+'</div></div>'+(!ic?'<div class="review-answer" style="color:var(--success);"><strong>'+(curLang==='zh'?'正确答案':'Correct answer')+' ('+co.l+'):</strong> <div class="lang-en">'+co.t+'</div><div class="lang-zh">'+co.z+'</div></div>':'')+'<div class="review-explanation">💡 <div class="lang-en">'+q.exp+'</div><div class="lang-zh">'+q.expZ+'</div></div></div>';
   });
-  var sb=document.getElementById('shareText');
-  sb.textContent='AI Fluency Assessment Results / AI 流畅度评估结果
-─'.repeat(36)+'
-'+(curLang==='zh'?'得分':'Score')+': '+sc+'/16 ('+cc+'/'+qData.length+' '+(curLang==='zh'?'答对':'correct')+')
-'+(curLang==='zh'?'等级':'Level')+': '+(curLang==='zh'?lv.zh:lv.en)+'
-
-'+(curLang==='zh'?'核心发现':'Key Takeaway')+': '+(curLang==='zh'?lv.descZ.split('。')[0]+'。':lv.desc.split('.')[0]+'.')+'
-
-'+(curLang==='zh'?'您的表现如何？分享您的结果，与同伴们一起对比！':'How did you do? Share your results and compare with your peers!');
+    var sb=document.getElementById('shareText');
+  var sep = '─'.repeat(36);
+  var scoreLine = (curLang==='zh'?'得分':'Score') + ': ' + sc + '/16 (' + cc + '/' + qData.length + ' ' + (curLang==='zh'?'答对':'correct') + ')';
+  var levelLine = (curLang==='zh'?'等级':'Level') + ': ' + (curLang==='zh'?lv.zh:lv.en);
+  var takeaway = (curLang==='zh'?'核心发现':'Key Takeaway') + ': ' + (curLang==='zh'?lv.descZ.split('。')[0]+'。':lv.desc.split('.')[0]+'.');
+  var closing = (curLang==='zh'?'您的表现如何？分享您的结果，与同伴们一起对比！':'How did you do? Share your results and compare with your peers!');
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -363,6 +361,25 @@ function resetAssessment(){
   document.getElementById('introSection').classList.remove('hidden');
   window.scrollTo({top:0,behavior:'smooth'});
 }
+setLang("en");
+</script>
+</body>
+</htmlvar sb=document.getElementById('shareText');var sep='\u2500'.repeat(36);var sl=(curLang==='zh'?'\u5f97\u5206':'Score')+': '+sc+'/16 ('+cc+'/'+qData.length+' '+(curLang==='zh'?'\u7b54\u5bf9':'correct')+')';var ll=(curLang==='zh'?'\u7b49\u7ea7':'Level')+': '+(curLang==='zh'?lv.zh:lv.en);var tk=(curLang==='zh'?'\u6838\u5fc3\u53d1\u73b0':'Key Takeaway')+': '+(curLang==='zh'?lv.descZ.split('\u3002')[0]+'\u3002':lv.desc.split('.')[0]+'.');var cl=(curLang==='zh'?'\u60a8\u7684\u8868\u73b0\u5982\u4f55\uff1f\u5206\u4eab\u60a8\u7684\u7ed3\u679c\uff0c\u4e0e\u540c\u4f34\u4eec\u4e00\u8d77\u5bf9\u6bd4\uff01':'How did you do? Share your results and compare with your peers!');sb.textContent='AI Fluency Assessment Results / AI \u6d41\u7545\u5ea6\u8bc4\u4f30\u7ed3\u679c\n'+sep+'\n'+sl+'\n'+ll+'\n\n'+tk+'\n\n'+cl;
+}
+
+function copyShareText(){
+  var t=document.getElementById('shareText').textContent;
+  navigator.clipboard.writeText(t).then(function(){var b=event.target,o=b.textContent;b.textContent='✓ Copied! / 已复制';setTimeout(function(){b.textContent=o;},2000);});
+}
+
+function resetAssessment(){
+  curQ=0;ans={};
+  document.getElementById('assessmentSection').style.display='none';
+  document.getElementById('resultsPage').style.display='none';
+  document.getElementById('introSection').classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+setLang("en");
 </script>
 </body>
 </html>
