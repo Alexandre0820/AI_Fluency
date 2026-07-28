@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Fluency Assessment | AI 流畅度评估 — Sony Leadership Workshop</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1B365D;
+    --gold: #B8956A;
+    --bg: #F4F5F7;
+    --text: #2D3748;
+    --subtitle: #718096;
+    --white: #FFFFFF;
+    --lightGold: #F5EDE3;
+    --success: #2D8659;
+    --warning: #D4791C;
+    --danger: #C53030;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .header {
+    background: var(--navy);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .header .gold-bar { width: 4px; height: 32px; background: var(--gold); border-radius: 2px; }
+  .header h1 { color: var(--white); font-size: 18px; font-weight: 600; letter-spacing: 1px; }
+  .header .subtitle { color: var(--gold); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; }
+
+  /* Language Toggle */
+  .lang-toggle {
+    display: flex; justify-content: center; gap: 0; margin: 24px auto 0; max-width: 200px;
+    border: 2px solid var(--gold); border-radius: 20px; overflow: hidden;
+  }
+  .lang-toggle button {
+    flex: 1; padding: 6px 16px; border: none; cursor: pointer;
+    font-size: 13px; font-weight: 600; font-family: 'Inter', 'Noto Sans SC', sans-serif;
+    transition: all 0.2s;
+  }
+  .lang-toggle button.active { background: var(--gold); color: white; }
+  .lang-toggle button:not(.active) { background: white; color: var(--subtitle); }
+  .lang-toggle button:not(.active):hover { background: var(--lightGold); }
+
+  /* Bilingual display */
+  .bilingual { display: block; }
+  .lang-en { display: block; }
+  .lang-zh { display: block; color: var(--subtitle); font-size: 0.92em; margin-top: 4px; }
+
+  /* Single language modes */
+  body.lang-mode-en .lang-zh { display: none !important; }
+  body.lang-mode-zh .lang-en { display: none !important; }
+  body.lang-mode-zh .lang-zh { color: var(--text); font-size: 1em; }
+
+  .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+  .intro-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 32px;
+    margin-bottom: 32px;
+    border-left: 4px solid var(--gold);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .intro-card h2 { font-size: 20px; color: var(--navy); margin-bottom: 12px; }
+  .intro-card p { font-size: 14px; color: var(--text); margin-bottom: 10px; }
+  .intro-card .note {
+    background: var(--lightGold);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--navy);
+    font-weight: 500;
+    margin-top: 16px;
+  }
+  .intro-card .note strong { color: var(--gold); }
+  .progress-container { margin-bottom: 32px; }
+  .progress-bar { height: 4px; background: #E2E8F0; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--gold); transition: width 0.4s ease; border-radius: 2px; }
+  .progress-text { font-size: 12px; color: var(--subtitle); margin-top: 8px; text-align: right; }
+  .question-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 32px;
+    margin-bottom: 24px;
+    border-left: 4px solid var(--gold);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .question-number { font-size: 11px; color: var(--gold); font-weight: 600; letter-spacing: 2px; margin-bottom: 8px; }
+  .question-text { font-size: 17px; font-weight: 600; color: var(--navy); margin-bottom: 20px; line-height: 1.5; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    display: flex; align-items: flex-start; padding: 14px 18px;
+    border: 2px solid #E2E8F0; border-radius: 8px;
+    cursor: pointer; transition: all 0.2s; font-size: 14px; line-height: 1.5;
+  }
+  .option:hover { border-color: var(--gold); background: var(--lightGold); }
+  .option.selected { border-color: var(--gold); background: var(--lightGold); font-weight: 500; }
+  .option .radio {
+    width: 18px; height: 18px; border: 2px solid #CBD5E0; border-radius: 50%;
+    margin-right: 12px; margin-top: 1px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .option.selected .radio { border-color: var(--gold); background: var(--gold); }
+  .option.selected .radio::after { content: '\2713'; color: white; font-size: 11px; font-weight: bold; }
+  .nav-buttons { display: flex; justify-content: space-between; margin-top: 32px; }
+  .btn {
+    padding: 12px 32px; border-radius: 6px; font-size: 14px;
+    font-weight: 600; cursor: pointer; border: none; transition: all 0.2s;
+    font-family: 'Inter', 'Noto Sans SC', sans-serif;
+  }
+  .btn-primary { background: var(--navy); color: var(--white); }
+  .btn-primary:hover { background: #2A4A7A; }
+  .btn-secondary { background: transparent; color: var(--subtitle); border: 1px solid #E2E8F0; }
+  .btn-secondary:hover { background: var(--white); }
+  .btn-gold { background: var(--gold); color: var(--white); }
+  .btn-gold:hover { background: #A37D55; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .results-page { display: none; }
+  .question-page { display: none; }
+  .question-page.active { display: block; }
+  .intro-section { display: block; }
+  .intro-section.hidden { display: none; }
+  .score-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 20px; border-radius: 20px; font-size: 14px; font-weight: 600; margin-bottom: 16px;
+  }
+  .score-badge.level-4 { background: #C6F6D5; color: var(--success); }
+  .score-badge.level-3 { background: var(--lightGold); color: var(--gold); }
+  .score-badge.level-2 { background: #FEEBC8; color: var(--warning); }
+  .score-badge.level-1 { background: #FED7D7; color: var(--danger); }
+  .level-card {
+    background: var(--white); border-radius: 8px; padding: 24px; margin-bottom: 24px;
+    border-left: 4px solid var(--gold); box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .level-card h3 { font-size: 16px; color: var(--navy); margin-bottom: 8px; }
+  .level-card p { font-size: 13px; color: var(--text); line-height: 1.6; }
+  .score-breakdown {
+    background: var(--white); border-radius: 8px; padding: 24px;
+    margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .score-breakdown h3 { font-size: 13px; color: var(--gold); letter-spacing: 2px; margin-bottom: 16px; }
+  .score-visual { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+  .score-circle {
+    width: 80px; height: 80px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .score-circle .score-num { font-size: 28px; font-weight: 700; color: var(--white); }
+  .score-circle .score-denom { font-size: 14px; color: rgba(255,255,255,0.8); }
+  .score-detail-text { font-size: 14px; color: var(--text); }
+  .score-detail-text strong { color: var(--navy); }
+  .level-scale { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+  .level-row {
+    display: flex; align-items: center; gap: 12px; padding: 8px 12px;
+    border-radius: 6px; font-size: 13px; transition: all 0.2s;
+  }
+  .level-row.active { background: var(--lightGold); font-weight: 600; }
+  .level-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .level-row .level-range { color: var(--subtitle); min-width: 50px; }
+  .level-row .level-label { color: var(--text); flex: 1; }
+  .review-section h3 { font-size: 13px; color: var(--gold); letter-spacing: 2px; margin: 24px 0 12px; }
+  .review-card {
+    background: var(--white); border-radius: 8px; padding: 20px 24px;
+    margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-left: 4px solid transparent;
+  }
+  .review-card.correct { border-left-color: var(--success); }
+  .review-card.incorrect { border-left-color: var(--danger); }
+  .review-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .review-icon {
+    width: 20px; height: 20px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: bold; color: white; flex-shrink: 0;
+  }
+  .review-icon.correct { background: var(--success); }
+  .review-icon.incorrect { background: var(--danger); }
+  .review-qnum { font-size: 11px; color: var(--gold); font-weight: 600; letter-spacing: 1px; }
+  .review-text { font-size: 14px; font-weight: 500; color: var(--navy); margin-bottom: 8px; }
+  .review-answer { font-size: 13px; color: var(--text); margin-bottom: 4px; }
+  .review-answer strong { color: var(--navy); }
+  .review-explanation {
+    font-size: 12px; color: var(--subtitle); line-height: 1.5;
+    padding: 8px 12px; background: var(--bg); border-radius: 4px; margin-top: 8px;
+  }
+  .share-section {
+    background: var(--white); border-radius: 8px; padding: 24px;
+    margin-top: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .share-section h3 { font-size: 13px; color: var(--gold); letter-spacing: 2px; margin-bottom: 12px; }
+  .share-box {
+    background: var(--bg); border: 1px solid #E2E8F0; border-radius: 6px;
+    padding: 16px; font-size: 13px; line-height: 1.6; white-space: pre-line;
+  }
+  .share-actions { display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+  .footer { text-align: center; padding: 32px; color: var(--subtitle); font-size: 12px; }
+  .footer a { color: var(--gold); text-decoration: none; }
+  @media (max-width: 640px) {
+    .header { padding: 16px 20px; }
+    .header h1 { font-size: 15px; }
+    .container { padding: 24px 16px; }
+    .intro-card, .question-card { padding: 24px 20px; }
+    .question-text { font-size: 15px; }
+    .option { padding: 12px 14px; font-size: 13px; }
+    .btn { padding: 10px 24px; font-size: 13px; }
+    .score-visual { flex-direction: column; text-align: center; }
+    .review-card { padding: 16px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="gold-bar"></div>
+  <div>
+    <div class="subtitle">SONY LEADERSHIP WORKSHOP</div>
+    <h1>AI Fluency Assessment / AI 流畅度评估</h1>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Language Toggle -->
+  <div class="lang-toggle">
+    <button class="active" id="btnEn" onclick="setLang('en')">English</button>
+    <button id="btnZh" onclick="setLang('zh')">中文</button>
+  </div>
+
+  <!-- Intro Section -->
+  <div class="intro-section" id="introSection">
+    <div class="intro-card">
+      <h2>
+        <span class="lang-en">Welcome to Your AI Fluency Assessment</span>
+        <span class="lang-zh">欢迎参加 AI 流畅度自我评估</span>
+      </h2>
+      <p>
+        <span class="lang-en">This self-diagnostic is designed to help you understand your current level of AI literacy — not as a test, but as a starting point for a meaningful conversation with your peers about AI readiness in your organization.</span>
+        <span class="lang-zh">本自测工具旨在帮助您了解自身的 AI 素养水平——不是考试，而是与同事就组织 AI 就绪度展开深度对话的起点。</span>
+      </p>
+      <p>
+        <span class="lang-en">You will answer <strong>8 scenario-based questions</strong>. Each correct answer earns <strong>2 points</strong>, for a total of <strong>16 points</strong>. Your score will map to one of four fluency levels.</span>
+        <span class="lang-zh">您将回答 <strong>8 道情景题</strong>，每答对一题得 <strong>2 分</strong>，满分 <strong>16 分</strong>。您的得分将对应四个流畅度等级之一。</span>
+      </p>
+      <div class="note">
+        <strong>💡 Remember / 记住：</strong>
+        <span class="lang-en">There are no "stupid" answers here. Every response helps paint a picture of where you are on your AI journey, and that's exactly what this exercise is for.</span>
+        <span class="lang-zh">这里没有"错误"答案。每个选择都能勾勒出您在 AI 旅程中的位置，这正是本练习的意义所在。</span>
+      </div>
+      <div style="text-align: right; margin-top: 20px;">
+        <button class="btn btn-gold" onclick="startAssessment()">Begin Assessment → 开始评估</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Assessment Section -->
+  <div id="assessmentSection" style="display: none;">
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+      </div>
+      <div class="progress-text" id="progressText">Question 1 of 8 · 0 answered</div>
+    </div>
+    <div id="questionsContainer"></div>
+    <div class="nav-buttons">
+      <button class="btn btn-secondary" id="prevBtn" onclick="prevQuestion()" disabled>← Back / 返回</button>
+      <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">Next → 下一题</button>
+    </div>
+  </div>
+
+  <!-- Results Section -->
+  <div class="results-page" id="resultsPage">
+    <div style="text-align: center; margin-bottom: 24px;">
+      <div style="width: 4px; height: 40px; background: var(--gold); margin: 0 auto 16px; border-radius: 2px;"></div>
+      <h2 style="font-size: 26px; color: var(--navy); margin-bottom: 8px;">
+        <span class="lang-en">Your AI Fluency Profile</span>
+        <span class="lang-zh">您的 AI 流畅度画像</span>
+      </h2>
+      <p style="color: var(--subtitle); font-size: 14px;">
+        <span class="lang-en">Based on your responses, here's where you stand on the AI fluency spectrum.</span>
+        <span class="lang-zh">根据您的回答，以下是您在 AI 流畅度光谱上的位置。</span>
+      </p>
+    </div>
+    <div style="text-align: center;">
+      <div class="score-badge" id="scoreBadge">
+        <span id="scoreIcon">●</span>
+        <span id="scoreText"></span>
+      </div>
+    </div>
+    <div class="score-breakdown">
+      <h3>SCORE OVERVIEW / 得分概览</h3>
+      <div class="score-visual">
+        <div class="score-circle" id="scoreCircle">
+          <div style="text-align: center;">
+            <div class="score-num" id="scoreNum"></div>
+            <div class="score-denom">/ 16</div>
+          </div>
+        </div>
+        <div class="score-detail-text" id="scoreDetailText"></div>
+      </div>
+      <div class="level-scale" id="levelScale"></div>
+    </div>
+    <div class="level-card" id="levelCard"></div>
+    <div class="review-section">
+      <h3>QUESTION-BY-QUESTION REVIEW / 逐题回顾</h3>
+      <div id="reviewCards"></div>
+    </div>
+    <div class="share-section">
+      <h3>SHARE YOUR RESULTS / 分享您的结果</h3>
+      <div class="share-box" id="shareText"></div>
+      <div class="share-actions">
+        <button class="btn btn-primary" onclick="copyShareText()">📋 Copy Summary / 复制摘要</button>
+        <button class="btn btn-secondary" onclick="resetAssessment()">↩ Retake / 重新作答</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    AI Fluency Assessment / AI 流畅度评估 — Sony Leadership Workshop<br>
+    <a href="#">Praxis Advisory</a> | July 2026
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    id: 1,
+    category: "AI Literacy / AI 素养",
+    text: "If a colleague says \"AI answers sound convincing so they are probably correct,\" what is the best response?",
+    text_zh: "如果同事说"AI 给出的答案听起来很靠谱，应该是对的"，最好的回应是什么？",
+    options: [
+      { label: "A", text: "They are right — AI is trained on huge amounts of data and rarely makes mistakes.", text_zh: "他们说得对——AI 基于海量数据训练，很少出错。" },
+      { label: "B", text: "That's not always true — AI can generate plausible-sounding but incorrect content. We should verify the output.", text_zh: "不一定——AI 可能生成听起来合理但实际错误的内容。我们应该核实输出。" },
+      { label: "C", text: "AI doesn't really \"understand\" anything, so all its answers are equally useless.", text_zh: "AI 其实什么都不"理解"，所以它的所有回答都没用。" },
+      { label: "D", text: "Just ask the AI to double-check itself — if it confirms, it must be correct.", text_zh: "让 AI 自己复查一下就行——如果它确认了，那肯定是对的。" }
+    ],
+    correct: 1,
+    explanation: "AI models can produce confident, fluent text that is factually wrong — often called 'hallucination.' The correct approach is always to verify AI output against reliable sources. Blind trust in AI outputs is one of the most common pitfalls in AI adoption.",
+    explanation_zh: "AI 模型可能产出听起来自信流畅、但实际上错误的内容——这被称为"幻觉"。正确做法始终是将 AI 输出与可靠来源进行交叉验证。盲目信任 AI 输出是 AI 落地中最常见的陷阱之一。"
+  },
+  {
+    id: 2,
+    category: "Human-AI Collaboration / 人机协作",
+    text: "Which example best reflects a proper human-in-the-loop setup?",
+    text_zh: "以下哪个案例最能体现合理的人在回路（human-in-the-loop）机制？",
+    options: [
+      { label: "A", text: "AI automatically approves all loan applications without any human review.", text_zh: "AI 自动审批所有贷款申请，无需人工审核。" },
+      { label: "B", text: "AI provides a risk recommendation, and a human underwriter reviews it and makes the final decision.", text_zh: "AI 提供风险建议，由人工核保员审核后做出最终决定。" },
+      { label: "C", text: "A human writes the first draft and then lets AI completely rewrite it without review.", text_zh: "人先写初稿，然后让 AI 完全重写，不再审核。" },
+      { label: "D", text: "AI handles all customer complaints, and humans only get involved if a customer explicitly asks.", text_zh: "AI 处理所有客户投诉，只有客户明确要求时人工才介入。" }
+    ],
+    correct: 1,
+    explanation: "A proper human-in-the-loop system means AI assists by providing analysis or recommendations, but a qualified human makes the final judgment. This balances AI's speed and pattern-recognition strengths with human judgment, accountability, and contextual understanding.",
+    explanation_zh: "合理的人在回路系统意味着 AI 提供分析或建议辅助决策，但由具备资质的人做出最终判断。这样既能发挥 AI 的速度和模式识别优势，又能兼顾人的判断力、问责机制和对上下文的理解。"
+  },
+  {
+    id: 3,
+    category: "Data Security & Privacy / 数据安全与隐私",
+    text: "Which is least appropriate to paste directly into a public generative AI tool?",
+    text_zh: "以下哪项最不适合直接粘贴到公开的生成式 AI 工具中？",
+    options: [
+      { label: "A", text: "A public press release draft for review.", text_zh: "一份用于审核的公开新闻稿草稿。" },
+      { label: "B", text: "Internal meeting notes with no customer data.", text_zh: "不包含客户数据的内部会议纪要。" },
+      { label: "C", text: "An Excel file with customer names and purchase records.", text_zh: "包含客户姓名和购买记录的 Excel 文件。" },
+      { label: "D", text: "A generic template for internal HR communications.", text_zh: "通用的内部人力资源沟通模板。" }
+    ],
+    correct: 2,
+    explanation: "Customer data (PII — personally identifiable information) should never be entered into public AI tools without proper data processing agreements. Public tools may store, train on, or leak sensitive information, creating GDPR/compliance risks. Always check your company's data policy before using external AI.",
+    explanation_zh: "客户数据（个人可识别信息/PII）在没有签订数据处理协议的情况下，绝不应输入公开的 AI 工具。公开工具可能存储、用于训练或泄露敏感信息，带来 GDPR/合规风险。使用外部 AI 前务必查阅公司数据政策。"
+  },
+  {
+    id: 4,
+    category: "Change Management / 变革管理",
+    text: "If a company buys AI tools but employees do not change how they work, what is the most likely issue?",
+    text_zh: "如果公司购买了 AI 工具但员工的工作方式没有改变，最可能的原因是什么？",
+    options: [
+      { label: "A", text: "The AI tools are not good enough yet.", text_zh: "AI 工具还不够好。" },
+      { label: "B", text: "The employees are not technical enough.", text_zh: "员工的技术能力不够。" },
+      { label: "C", text: "The real bottleneck is change management, not technology.", text_zh: "真正的瓶颈是变革管理，而非技术。" },
+      { label: "D", text: "AI tools don't actually help in a business context.", text_zh: "AI 工具在业务场景中其实没什么用。" }
+    ],
+    correct: 2,
+    explanation: "Technology alone doesn't create value — people need to change their workflows, habits, and mindset. Successful AI adoption requires training, clear communication about new processes, leadership support, and often a cultural shift. Change management is consistently the biggest barrier to AI ROI.",
+    explanation_zh: "技术本身不创造价值——人需要改变工作流程、习惯和思维方式。成功的 AI 落地需要培训、对新流程的清晰沟通、领导层支持，往往还需要文化转型。变革管理始终是 AI 投资回报率的最大障碍。"
+  },
+  {
+    id: 5,
+    category: "Strategic Thinking / 战略思维",
+    text: "Which best reflects a higher level of AI fluency?",
+    text_zh: "以下哪项最能体现较高的 AI 流畅度？",
+    options: [
+      { label: "A", text: "Knowing how to write detailed prompts for ChatGPT.", text_zh: "知道如何为 ChatGPT 撰写详细的提示词。" },
+      { label: "B", text: "Understanding AI's limitations and being able to judge which business problems are suitable for AI.", text_zh: "理解 AI 的局限性，能判断哪些业务问题适合用 AI 解决。" },
+      { label: "C", text: "Being able to build a machine learning model from scratch.", text_zh: "能从零开始构建一个机器学习模型。" },
+      { label: "D", text: "Using AI to replace as many human workers as possible.", text_zh: "用 AI 尽可能多地替代人工。" }
+    ],
+    correct: 1,
+    explanation: "True AI fluency goes beyond knowing how to use tools — it's about understanding what AI can and cannot do, and strategically evaluating where it adds real value. Leaders need this judgment to allocate resources wisely and avoid costly AI initiatives that don't solve real problems.",
+    explanation_zh: "真正的 AI 流畅度不仅在于会用工具，更在于理解 AI 能做什么、不能做什么，并能从战略角度评估 AI 在哪里能创造真正价值。领导者需要这种判断力来合理配置资源，避免投入高昂却未解决真实问题的 AI 项目。"
+  },
+  {
+    id: 6,
+    category: "Quality Assurance / 质量保障",
+    text: "If AI generates marketing copy, what is the most appropriate next step?",
+    text_zh: "如果 AI 生成了营销文案，最合适的下一步是什么？",
+    options: [
+      { label: "A", text: "Publish it immediately — AI-generated content is usually good enough.", text_zh: "立即发布——AI 生成的内容通常足够好。" },
+      { label: "B", text: "Have another AI tool review it for quality.", text_zh: "用另一个 AI 工具来审核质量。" },
+      { label: "C", text: "A business owner reviews it for facts, tone, and brand consistency.", text_zh: "由业务负责人审核事实准确性、语气和品牌一致性。" },
+      { label: "D", text: "Send it to the legal department to check for copyright issues.", text_zh: "发给法务部门检查版权问题。" }
+    ],
+    correct: 2,
+    explanation: "While AI can produce drafts efficiently, human review is essential for factual accuracy, brand voice consistency, emotional appropriateness, and strategic alignment. The business owner or subject-matter expert is best positioned to judge whether the content serves its intended purpose.",
+    explanation_zh: "虽然 AI 能高效产出草稿，但人工审核对于确保事实准确性、品牌调性一致、情感适当性和战略对齐至关重要。业务负责人或领域专家最有资格判断内容是否达成了预期目标。"
+  },
+  {
+    id: 7,
+    category: "Ethics & Responsibility / 伦理与责任",
+    text: "Which is most clearly a responsible AI issue rather than just a technical issue?",
+    text_zh: "以下哪项最明显属于负责任 AI 问题，而不仅仅是技术问题？",
+    options: [
+      { label: "A", text: "The model's accuracy dropped because training data was outdated.", text_zh: "模型准确率下降，因为训练数据过时了。" },
+      { label: "B", text: "The AI system runs slowly because of insufficient computing resources.", text_zh: "AI 系统运行缓慢，因为计算资源不足。" },
+      { label: "C", text: "A hiring model systematically disadvantages a group of applicants.", text_zh: "一个招聘模型系统性地对某一群体不利。" },
+      { label: "D", text: "The chatbot sometimes gives irrelevant answers.", text_zh: "聊天机器人有时给出不相关的回答。" }
+    ],
+    correct: 2,
+    explanation: "When an AI system systematically discriminates against a group, it's a fairness and ethics problem with real-world consequences — not just a technical bug. Responsible AI requires proactive monitoring for bias, equitable outcomes, and accountability structures that go well beyond engineering fixes.",
+    explanation_zh: "当 AI 系统系统性地歧视某一群体时，这是一个具有现实后果的公平与伦理问题——而不仅仅是技术缺陷。负责任的 AI 要求主动监控偏见、确保公平结果，并建立超越工程修复的问责机制。"
+  },
+  {
+    id: 8,
+    category: "Strategic Planning / 战略规划",
+    text: "If a company wants to identify AI opportunities, what is usually the best starting point?",
+    text_zh: "如果公司想发现 AI 机会，最佳的起点通常是什么？",
+    options: [
+      { label: "A", text: "Buy the latest AI tool and figure out how to use it later.", text_zh: "先买最新的 AI 工具，之后再想怎么用。" },
+      { label: "B", text: "Ask the IT department which AI tools they recommend.", text_zh: "问问 IT 部门推荐哪些 AI 工具。" },
+      { label: "C", text: "Start from business goals, process pain points, and high-value decisions.", text_zh: "从业务目标、流程痛点和高价值决策出发。" },
+      { label: "D", text: "Benchmark what competitors are doing and copy their approach.", text_zh: "对标竞争对手的做法并照搬。" }
+    ],
+    correct: 2,
+    explanation: "The most effective AI adoption starts with the business problem, not the technology. Identifying high-impact pain points, expensive decisions, and bottlenecks ensures AI investments align with real organizational needs and deliver measurable ROI. Technology should serve the strategy, not the other way around.",
+    explanation_zh: "最有效的 AI 落地从业务问题出发，而非从技术出发。识别高影响痛点、高成本决策和流程瓶颈，才能确保 AI 投资与真实的组织需求对齐，并产生可衡量的投资回报。技术应服务于战略，而非反过来。"
+  }
+];
+
+const levels = [
+  { range: "0\u20136", label: "Level 1 \u2014 AI Awareness", label_zh: "\u7b2c1\u7ea7 \u2014 AI \u8ba4\u77e5\u9636\u6bb5", class: "level-1", color: "var(--danger)",
+    description: "You are at the awareness stage of AI fluency. You recognize AI exists but may have gaps in understanding its capabilities, limitations, and how to use it responsibly. This is a great starting point \u2014 many leaders are in this stage and it simply means there's a valuable learning journey ahead.",
+    description_zh: "\u60a8\u5904\u4e8e AI \u6d41\u7545\u5ea6\u7684\u8ba4\u77e5\u9636\u6bb5\u3002\u60a8\u8ba4\u8bc6\u5230 AI \u7684\u5b58\u5728\uff0c\u4f46\u5728\u7406\u89e3\u5176\u80fd\u529b\u3001\u5c40\u9650\u6027\u548c\u8d1f\u8d23\u4f7f\u7528\u65b9\u9762\u53ef\u80fd\u5b58\u5728\u77ed\u677f\u3002\u8fd9\u662f\u4e00\u4e2a\u5f88\u597d\u7684\u8d77\u70b9\u2014\u2014\u5f88\u591a\u9886\u5bfc\u8005\u90fd\u5904\u4e8e\u8fd9\u4e2a\u9636\u6bb5\uff0c\u8fd9\u610f\u5473\u7740\u524d\u65b9\u6709\u4e00\u6bb5\u5b9d\u8d35\u7684\u5b66\u4e60\u4e4b\u65c5\u3002",
+    recommendation: "Focus on building foundational AI literacy. Hands-on workshops, peer discussions, and experimenting with AI tools in low-risk scenarios will rapidly build your confidence.",
+    recommendation_zh: "\u805a\u7126\u6784\u5efa AI \u57fa\u7840\u7d20\u517b\u3002\u901a\u8fc7\u5b9e\u64cd\u5de5\u4f5c\u574a\u3001\u540c\u4f34\u8ba8\u8bba\u548c\u5728\u4f4e\u98ce\u9669\u573a\u666f\u4e2d\u5c1d\u8bd5 AI \u5de5\u5177\uff0c\u5c06\u8fc5\u901f\u63d0\u5347\u60a8\u7684\u4fe1\u5fc3\u3002" },
+  { range: "7\u201310", label: "Level 2 \u2014 AI Usage", label_zh: "\u7b2c2\u7ea7 \u2014 AI \u5e94\u7528\u9636\u6bb5", class: "level-2", color: "var(--warning)",
+    description: "You demonstrate practical usage of AI and understand some of its limitations. You're comfortable with AI tools but may still be developing deeper strategic thinking about where and when to apply AI in your business context.",
+    description_zh: "\u60a8\u5c55\u73b0\u4e86\u5b9e\u9645 AI \u5e94\u7528\u80fd\u529b\uff0c\u5e76\u4e86\u89e3\u90e8\u5206\u5c40\u9650\u6027\u3002\u60a8\u5bf9 AI \u5de5\u5177\u5df2\u7ecf\u719f\u7ec3\uff0c\u4f46\u5728\u6218\u7565\u5c42\u9762\u601d\u8003\u201c\u5728\u4f55\u5904\u3001\u4f55\u65f6\u5e94\u7528 AI\u201d\u65b9\u9762\u53ef\u80fd\u4ecd\u5728\u53d1\u5c55\u4e2d\u3002",
+    recommendation: "Deepen your understanding by exploring AI's failure modes and edge cases. Practice evaluating AI outputs critically and start identifying AI opportunities aligned with your business goals.",
+    recommendation_zh: "\u901a\u8fc7\u63a2\u7d22 AI \u7684\u5931\u8d25\u6a21\u5f0f\u548c\u8fb9\u754c\u60c5\u51b5\u6765\u6df1\u5316\u7406\u89e3\u3002\u7ec3\u4e60\u6279\u5224\u6027\u5730\u8bc4\u4f30 AI \u8f93\u51fa\uff0c\u5e76\u5f00\u59cb\u8bc6\u522b\u4e0e\u4e1a\u52a1\u76ee\u6807\u5bf9\u9f50\u7684 AI \u673a\u4f1a\u3002" },
+  { range: "11\u201313", label: "Level 3 \u2014 Applied Understanding", label_zh: "\u7b2c3\u7ea7 \u2014 AI \u5e94\u7528\u7406\u89e3\u9636\u6bb5", class: "level-3", color: "var(--gold)",
+    description: "You have a solid applied understanding of AI \u2014 its capabilities, limitations, ethical considerations, and strategic value. You can distinguish between good and bad AI use cases and understand the human factors in AI adoption.",
+    description_zh: "\u60a8\u5bf9 AI \u5177\u5907\u624e\u5b9e\u7684\u5e94\u7528\u7406\u89e3\u2014\u2014\u5176\u80fd\u529b\u3001\u5c40\u9650\u6027\u3001\u4f26\u7406\u8003\u91cf\u548c\u6218\u7565\u4ef7\u503c\u3002\u60a8\u80fd\u591f\u533a\u5206\u4f18\u52a3 AI \u7528\u4f8b\uff0c\u5e76\u7406\u89e3 AI \u843d\u5730\u4e2d\u7684\u4eba\u56e0\u7d20\u3002",
+    recommendation: "Leverage your fluency to lead AI initiatives in your team. Focus on change management, responsible AI governance, and identifying high-impact opportunities.",
+    recommendation_zh: "\u5229\u7528\u60a8\u7684 AI \u6d41\u7545\u5ea6\u5728\u56e2\u961f\u4e2d\u5f15\u9886 AI \u9879\u76ee\u3002\u805a\u7126\u53d8\u9769\u7ba1\u7406\u3001\u8d1f\u8d23\u4efb AI \u6cbb\u7406\uff0c\u4ee5\u53ca\u8bc6\u522b\u9ad8\u5f71\u54cd\u673a\u4f1a\u3002" },
+  { range: "14\u201316", label: "Level 4 \u2014 Strategic Fluency", label_zh: "\u7b2c4\u7ea7 \u2014 AI \u6218\u7565\u6d41\u7545\u9636\u6bb5", class: "level-4", color: "var(--success)",
+    description: "Excellent \u2014 you demonstrate strategic AI fluency. You understand AI's potential and limitations deeply, can evaluate its fit for complex business problems, and think critically about responsible implementation. You're well-positioned to lead AI transformation.",
+    description_zh: "\u51fa\u8272\u2014\u2014\u60a8\u5c55\u73b0\u51fa\u6218\u7565\u7ea7 AI \u6d41\u7545\u5ea6\u3002\u60a8\u6df1\u523b\u7406\u89e3 AI \u7684\u6f5c\u529b\u4e0e\u5c40\u9650\u6027\uff0c\u80fd\u8bc4\u4f30\u5176\u4e0e\u590d\u6742\u4e1a\u52a1\u95ee\u9898\u7684\u5951\u5408\u5ea6\uff0c\u5e76\u80fd\u6279\u5224\u6027\u5730\u601d\u8003\u8d1f\u8d23\u4efb\u5b9e\u65bd\u3002\u60a8\u5df2\u5177\u5907\u5f15\u9886 AI \u8f6c\u578b\u7684\u7406想条\u4ef6\u3002",
+    recommendation: "Share your knowledge with peers and help build organizational AI literacy. Focus on scaling responsible AI practices and exploring innovative applications that create competitive advantage.",
+    recommendation_zh: "\u4e0e\u540c\u4f34\u5206\u4eab\u60a8\u7684\u77e5\u8bc6\uff0c\u52a9\u529b\u6784\u5efa\u7ec4\u7ec7 AI \u7d20\u517b\u3002\u805a\u7126\u6269\u5927\u8d1f\u8d23\u4efb AI \u5b9e\u8df5\uff0c\u5e76\u63a2\u7d22\u80fd\u521b\u9020\u7ade\u4e89\u4f18\u52bf\u7684\u521b\u65b0\u5e94\u7528\u3002" }
+];
+
+let currentQuestion = 0;
+let answers = {};
+var currentLang = 'en';
+
+function setLang(lang) {
+  currentLang = lang;
+  document.body.classList.remove('lang-mode-en', 'lang-mode-zh');
+  if (lang === 'en') document.body.classList.add('lang-mode-en');
+  if (lang === 'zh') document.body.classList.add('lang-mode-zh');
+  document.querySelectorAll('.lang-toggle button').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById(lang === 'en' ? 'btnEn' : 'btnZh').classList.add('active');
+  if (Object.keys(answers).length === questions.length && document.getElementById('resultsPage').style.display === 'block') {
+    showResults();
+  }
+}
+
+function startAssessment() {
+  document.getElementById('introSection').classList.add('hidden');
+  document.getElementById('assessmentSection').style.display = 'block';
+  renderQuestions();
+  updateProgress();
+  updateNavButtons();
+}
+
+function renderQuestions() {
+  const container = document.getElementById('questionsContainer');
+  container.innerHTML = '';
+  questions.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = 'question-page ' + (i === 0 ? 'active' : '');
+    div.id = 'question-' + i;
+    div.innerHTML = '<div class="question-card">' +
+      '<div class="question-number">' + q.category.toUpperCase() + '</div>' +
+      '<div class="question-text">' +
+        '<div class="lang-en">' + q.text + '</div>' +
+        '<div class="lang-zh">' + q.text_zh + '</div>' +
+      '</div>' +
+      '<div class="options">' +
+        q.options.map(function(opt, j) {
+          return '<div class="option" id="opt-' + i + '-' + j + '" onclick="selectOption(' + i + ', ' + j + ')">' +
+            '<div class="radio"></div>' +
+            '<span><strong>' + opt.label + '.</strong> ' +
+              '<span class="lang-en">' + opt.text + '</span>' +
+              '<span class="lang-zh">' + opt.text_zh + '</span>' +
+            '</span></div>';
+        }).join('') +
+      '</div></div>';
+    container.appendChild(div);
+  });
+}
+
+function selectOption(qIdx, optIdx) {
+  questions[qIdx].options.forEach(function(_, j) {
+    document.getElementById('opt-' + qIdx + '-' + j).classList.remove('selected');
+  });
+  document.getElementById('opt-' + qIdx + '-' + optIdx).classList.add('selected');
+  answers[qIdx] = optIdx;
+  updateProgress();
+  updateNavButtons();
+}
+
+function nextQuestion() {
+  if (currentQuestion < questions.length - 1) {
+    document.getElementById('question-' + currentQuestion).classList.remove('active');
+    currentQuestion++;
+    document.getElementById('question-' + currentQuestion).classList.add('active');
+    updateProgress(); updateNavButtons();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else if (Object.keys(answers).length === questions.length) {
+    showResults();
+  }
+}
+
+function prevQuestion() {
+  if (currentQuestion > 0) {
+    document.getElementById('question-' + currentQuestion).classList.remove('active');
+    currentQuestion--;
+    document.getElementById('question-' + currentQuestion).classList.add('active');
+    updateProgress(); updateNavButtons();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function updateProgress() {
+  var answered = Object.keys(answers).length;
+  document.getElementById('progressFill').style.width = (answered / questions.length * 100) + '%';
+  var label = currentLang === 'zh' ? ('\u7b2c ' + (currentQuestion + 1) + ' \u9898 / \u5171 ' + questions.length + ' \u9898 \xb7 \u5df2\u7b54 ' + answered + ' \u9898') : ('Question ' + (currentQuestion + 1) + ' of ' + questions.length + ' \xb7 ' + answered + ' answered');
+  document.getElementById('progressText').textContent = label;
+}
+
+function updateNavButtons() {
+  document.getElementById('prevBtn').disabled = currentQuestion === 0;
+  var nextBtn = document.getElementById('nextBtn');
+  if (currentQuestion === questions.length - 1) {
+    var allAnswered = Object.keys(answers).length === questions.length;
+    nextBtn.textContent = allAnswered ? 'See Results \u2192 \u67e5\u770b\u7ed3\u679c' : (currentLang === 'zh' ? '\u5168\u90e8\u7b54\u5b8c\u540e\u53ef\u7ee7\u7eed' : 'Answer all to continue');
+    nextBtn.disabled = !allAnswered;
+  } else {
+    nextBtn.textContent = currentLang === 'zh' ? '\u4e0b\u4e00\u9898 \u2192' : 'Next \u2192';
+    nextBtn.disabled = false;
+  }
+}
+
+function calculateScore() {
+  var score = 0;
+  questions.forEach(function(q, i) {
+    if (answers[i] === q.correct) { score += 2; }
+  });
+  return score;
+}
+
+function getLevel(score) {
+  for (var i = 0; i < levels.length; i++) {
+    var parts = levels[i].range.split('\u2013').map(Number);
+    if (score >= parts[0] && score <= parts[1]) return levels[i];
+  }
+  return levels[0];
+}
+
+function showResults() {
+  document.getElementById('assessmentSection').style.display = 'none';
+  document.getElementById('resultsPage').style.display = 'block';
+  var score = calculateScore();
+  var level = getLevel(score);
+  var correctCount = score / 2;
+  var badge = document.getElementById('scoreBadge');
+  badge.className = 'score-badge ' + level.class;
+  document.getElementById('scoreIcon').textContent = level.class === 'level-4' ? '\u2605' : level.class === 'level-3' ? '\u25cf' : level.class === 'level-2' ? '\u25c6' : '\u25cb';
+  document.getElementById('scoreText').textContent = score + '/16 \u2014 ' + (currentLang === 'zh' ? level.label_zh : level.label);
+  var circle = document.getElementById('scoreCircle');
+  circle.style.background = level.color;
+  document.getElementById('scoreNum').textContent = score;
+  var detailEN = 'You answered <strong>' + correctCount + ' out of ' + questions.length + '</strong> questions correctly. Each correct answer is worth 2 points.';
+  var detailZH = '\u60a8\u7b54\u5bf9\u4e86 <strong>' + correctCount + ' / ' + questions.length + '</strong> \u9898\u3002\u6bcf\u7b54\u5bf9\u4e00\u9898\u5f97 2 \u5206\u3002';
+  document.getElementById('scoreDetailText').innerHTML = '<div class="lang-en">' + detailEN + '</div><div class="lang-zh">' + detailZH + '</div>';
+  var scaleEl = document.getElementById('levelScale');
+  scaleEl.innerHTML = '';
+  levels.forEach(function(l) {
+    var isActive = l.range === level.range;
+    var shortLabel = currentLang === 'zh' ? l.label_zh.replace('L1: ', '').replace('L2: ', '').replace('L3: ', '').replace('L4: ', '') : l.label.replace('Level 1 \u2014 ', 'L1: ').replace('Level 2 \u2014 ', 'L2: ').replace('Level 3 \u2014 ', 'L3: ').replace('Level 4 \u2014 ', 'L4: ');
+    scaleEl.innerHTML += '<div class="level-row ' + (isActive ? 'active' : '') + '">' +
+      '<div class="level-dot" style="background: ' + l.color + '"></div>' +
+      '<div class="level-range">' + l.range + ' pts</div>' +
+      '<div class="level-label">' + shortLabel + '</div>' +
+      (isActive ? '<div style="color: var(--gold); font-size: 11px;">\u2190 YOU ARE HERE / \u60a8\u7684\u4f4d\u7f6e</div>' : '') +
+      '</div>';
+  });
+  var levelCard = document.getElementById('levelCard');
+  levelCard.innerHTML = '<h3>' + (currentLang === 'zh' ? level.label_zh : level.label) + '</h3>' +
+    '<p><div class="lang-en">' + level.description + '</div><div class="lang-zh">' + level.description_zh + '</div></p>' +
+    '<p style="margin-top: 12px;"><strong style="color: var(--gold);">' + (currentLang === 'zh' ? '\u5efa\u8bae\u4e0b\u4e00\u6b65\uff1a' : 'Recommended Next Steps:') + '</strong> ' +
+    '<div class="lang-en">' + level.recommendation + '</div><div class="lang-zh">' + level.recommendation_zh + '</div></p>';
+  var reviewEl = document.getElementById('reviewCards');
+  reviewEl.innerHTML = '';
+  questions.forEach(function(q, i) {
+    var userAnswer = answers[i];
+    var isCorrect = userAnswer === q.correct;
+    var correctOption = q.options[q.correct];
+    var userOption = q.options[userAnswer];
+    reviewEl.innerHTML += '<div class="review-card ' + (isCorrect ? 'correct' : 'incorrect') + '">' +
+      '<div class="review-header">' +
+        '<div class="review-icon ' + (isCorrect ? 'correct' : 'incorrect') + '">' + (isCorrect ? '\u2713' : '\u2717') + '</div>' +
+        '<div class="review-qnum">QUESTION ' + String(i+1).padStart(2, '0') + '</div>' +
+        '<div style="flex:1"></div>' +
+        '<div style="font-size: 12px; color: ' + (isCorrect ? 'var(--success)' : 'var(--danger)') + '; font-weight: 600;">' + (isCorrect ? '+2 pts' : '0 pts') + '</div>' +
+      '</div>' +
+      '<div class="review-text"><div class="lang-en">' + q.text + '</div><div class="lang-zh">' + q.text_zh + '</div></div>' +
+      '<div class="review-answer"><strong>' + (currentLang === 'zh' ? '\u60a8\u7684\u7b54\u6848' : 'Your answer') + ' (' + userOption.label + '):</strong> ' +
+        '<div class="lang-en">' + userOption.text + '</div><div class="lang-zh">' + userOption.text_zh + '</div></div>' +
+      (!isCorrect ? '<div class="review-answer" style="color: var(--success);"><strong>' + (currentLang === 'zh' ? '\u6b63\u786e\u7b54\u6848' : 'Correct answer') + ' (' + correctOption.label + '):</strong> ' +
+        '<div class="lang-en">' + correctOption.text + '</div><div class="lang-zh">' + correctOption.text_zh + '</div></div>' : '') +
+      '<div class="review-explanation">\ud83d\udca1 <div class="lang-en">' + q.explanation + '</div><div class="lang-zh">' + q.explanation_zh + '</div></div>' +
+    '</div>';
+  });
+  var shareBox = document.getElementById('shareText');
+  shareBox.textContent = 'AI Fluency Assessment Results / AI \u6d41\u7545\u5ea6\u8bc4\u4f30\u7ed3\u679c\n' + '\u2500'.repeat(36) + '\n' +
+    (currentLang === 'zh' ? '\u5f97\u5206' : 'Score') + ': ' + score + '/16 (' + correctCount + '/' + questions.length + ' ' + (currentLang === 'zh' ? '\u7b54\u5bf9' : 'correct') + ')\n' +
+    (currentLang === 'zh' ? '\u7b49\u7ea7' : 'Level') + ': ' + (currentLang === 'zh' ? level.label_zh : level.label) + '\n\n' +
+    (currentLang === 'zh' ? '\u6838\u5fc3\u53d1\u73b0' : 'Key Takeaway') + ': ' + (currentLang === 'zh' ? level.description_zh.split('\u3002')[0] + '\u3002' : level.description.split('.')[0] + '.') + '\n\n' +
+    (currentLang === 'zh' ? '\u60a8\u7684\u8868\u73b0\u5982\u4f55\uff1f\u5206\u4eab\u60a8\u7684\u7ed3\u679c\uff0c\u4e0e\u540c\u4f34\u4eec\u4e00\u8d77\u5bf9\u6bd4\uff01' : 'How did you do? Share your results and compare with your peers!');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function copyShareText() {
+  var text = document.getElementById('shareText').textContent;
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = event.target;
+    var original = btn.textContent;
+    btn.textContent = '\u2713 Copied! / \u5df2\u590d\u5236';
+    setTimeout(function() { btn.textContent = original; }, 2000);
+  });
+}
+
+function resetAssessment() {
+  currentQuestion = 0;
+  answers = {};
+  document.getElementById('assessmentSection').style.display = 'none';
+  document.getElementById('resultsPage').style.display = 'none';
+  document.getElementById('introSection').classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>

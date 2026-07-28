@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Readiness Assessment | AI 就绪度评估 — Praxis Advisory</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1B365D;
+    --gold: #B8956A;
+    --bg: #F4F5F7;
+    --text: #2D3748;
+    --subtitle: #718096;
+    --white: #FFFFFF;
+    --lightGold: #F5EDE3;
+    --success: #2D8659;
+    --warning: #D4791C;
+    --danger: #C53030;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .header {
+    background: var(--navy);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .header .gold-bar { width: 4px; height: 32px; background: var(--gold); border-radius: 2px; }
+  .header h1 { color: var(--white); font-size: 18px; font-weight: 600; letter-spacing: 1px; }
+  .header .subtitle { color: var(--gold); font-size: 12px; letter-spacing: 2px; }
+
+  .lang-toggle {
+    display: flex; justify-content: center; gap: 0; margin: 24px auto 0; max-width: 200px;
+    border: 2px solid var(--gold); border-radius: 20px; overflow: hidden;
+  }
+  .lang-toggle button {
+    flex: 1; padding: 6px 16px; border: none; cursor: pointer;
+    font-size: 13px; font-weight: 600; font-family: 'Inter', 'Noto Sans SC', sans-serif;
+    transition: all 0.2s;
+  }
+  .lang-toggle button.active { background: var(--gold); color: white; }
+  .lang-toggle button:not(.active) { background: white; color: var(--subtitle); }
+  .lang-toggle button:not(.active):hover { background: var(--lightGold); }
+
+  .bilingual { display: block; }
+  .lang-en { display: block; }
+  .lang-zh { display: block; color: var(--subtitle); font-size: 0.92em; margin-top: 4px; }
+  body.lang-mode-en .lang-zh { display: none !important; }
+  body.lang-mode-zh .lang-en { display: none !important; }
+  body.lang-mode-zh .lang-zh { color: var(--text); font-size: 1em; }
+
+  .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+  .progress-container { margin-bottom: 32px; }
+  .progress-bar { height: 4px; background: #E2E8F0; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--gold); transition: width 0.4s ease; border-radius: 2px; }
+  .progress-text { font-size: 12px; color: var(--subtitle); margin-top: 8px; text-align: right; }
+  .question-card {
+    background: var(--white); border-radius: 8px; padding: 32px; margin-bottom: 24px;
+    border-left: 4px solid var(--gold); box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .question-number { font-size: 11px; color: var(--gold); font-weight: 600; letter-spacing: 2px; margin-bottom: 8px; }
+  .question-text { font-size: 18px; font-weight: 600; color: var(--navy); margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    display: flex; align-items: center; padding: 14px 18px;
+    border: 2px solid #E2E8F0; border-radius: 8px;
+    cursor: pointer; transition: all 0.2s; font-size: 14px;
+  }
+  .option:hover { border-color: var(--gold); background: var(--lightGold); }
+  .option.selected { border-color: var(--gold); background: var(--lightGold); font-weight: 600; }
+  .option .radio {
+    width: 18px; height: 18px; border: 2px solid #CBD5E0; border-radius: 50%;
+    margin-right: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .option.selected .radio { border-color: var(--gold); background: var(--gold); }
+  .option.selected .radio::after { content: '\2713'; color: white; font-size: 11px; font-weight: bold; }
+  .nav-buttons { display: flex; justify-content: space-between; margin-top: 32px; }
+  .btn {
+    padding: 12px 32px; border-radius: 6px; font-size: 14px;
+    font-weight: 600; cursor: pointer; border: none; transition: all 0.2s;
+    font-family: 'Inter', 'Noto Sans SC', sans-serif;
+  }
+  .btn-primary { background: var(--navy); color: var(--white); }
+  .btn-primary:hover { background: #2A4A7A; }
+  .btn-secondary { background: transparent; color: var(--subtitle); border: 1px solid #E2E8F0; }
+  .btn-secondary:hover { background: var(--white); }
+  .btn-gold { background: var(--gold); color: var(--white); }
+  .btn-gold:hover { background: #A37D55; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .results-page { display: none; }
+  .question-page { display: none; }
+  .question-page.active { display: block; }
+  .radar-container { display: flex; justify-content: center; margin: 32px -40px; overflow: visible; }
+  .radar-svg { width: 100%; max-width: 550px; }
+  .score-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 20px; border-radius: 20px; font-size: 14px; font-weight: 600; margin-bottom: 16px;
+  }
+  .score-badge.excellent { background: #C6F6D5; color: var(--success); }
+  .score-badge.good { background: var(--lightGold); color: var(--gold); }
+  .score-badge.fair { background: #FEEBC8; color: var(--warning); }
+  .score-badge.poor { background: #FED7D7; color: var(--danger); }
+  .dim-detail {
+    display: flex; align-items: center; padding: 14px 0;
+    border-bottom: 1px solid #E2E8F0;
+  }
+  .dim-detail:last-child { border-bottom: none; }
+  .dim-dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 16px; flex-shrink: 0; }
+  .dim-info { flex: 1; }
+  .dim-name { font-size: 14px; font-weight: 600; color: var(--navy); }
+  .dim-score { font-size: 20px; font-weight: 700; color: var(--navy); min-width: 50px; text-align: right; }
+  .dim-bar { width: 120px; height: 6px; background: #E2E8F0; border-radius: 3px; margin-left: 16px; overflow: hidden; }
+  .dim-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+  .recommendation {
+    background: var(--white); border-radius: 8px; padding: 20px 24px;
+    margin-bottom: 12px; border-left: 4px solid var(--gold);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .recommendation h3 { font-size: 15px; color: var(--navy); margin-bottom: 6px; }
+  .recommendation p { font-size: 13px; color: var(--text); line-height: 1.6; }
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: 600; margin-top: 8px; }
+  .tag-priority { background: #FED7D7; color: var(--danger); }
+  .tag-recommend { background: #C6F6D5; color: var(--success); }
+  .tag-optional { background: #E2E8F0; color: var(--subtitle); }
+  .footer { text-align: center; padding: 32px; color: var(--subtitle); font-size: 12px; }
+  .footer a { color: var(--gold); text-decoration: none; }
+  @media (max-width: 640px) {
+    .header { padding: 16px 20px; }
+    .header h1 { font-size: 15px; }
+    .container { padding: 24px 16px; }
+    .question-card { padding: 24px 20px; }
+    .question-text { font-size: 15px; }
+    .option { padding: 12px 14px; font-size: 13px; }
+    .btn { padding: 10px 24px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="gold-bar"></div>
+  <div>
+    <div class="subtitle">STONEHENGE UNIVERSITY LEADERSHIP PROGRAM</div>
+    <h1>AI Readiness Assessment / AI 就绪度评估</h1>
+  </div>
+</div>
+
+<div class="container">
+  <div class="lang-toggle">
+    <button class="active" id="btnEn" onclick="setLang('en')">English</button>
+    <button id="btnZh" onclick="setLang('zh')">中文</button>
+  </div>
+
+  <div class="progress-container">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+    </div>
+    <div class="progress-text" id="progressText">Question 0 of 10</div>
+  </div>
+
+  <div id="questionsContainer"></div>
+
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" id="prevBtn" onclick="prevQuestion()" disabled>← Back / 返回</button>
+    <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">Next → 下一题</button>
+  </div>
+
+  <div class="results-page" id="resultsPage">
+    <div style="text-align: center; margin-bottom: 24px;">
+      <div style="width: 4px; height: 40px; background: var(--gold); margin: 0 auto 16px; border-radius: 2px;"></div>
+      <h2 style="font-size: 26px; color: var(--navy); margin-bottom: 8px;">
+        <span class="lang-en">Your AI Readiness Profile</span>
+        <span class="lang-zh">您的 AI 就绪度画像</span>
+      </h2>
+      <p style="color: var(--subtitle); font-size: 14px;">
+        <span class="lang-en">Based on your responses, here's where your organization stands.</span>
+        <span class="lang-zh">根据您的回答，以下是您所在组织的 AI 就绪状态。</span>
+      </p>
+    </div>
+    <div style="text-align: center;">
+      <div class="score-badge" id="scoreBadge">
+        <span id="scoreIcon">\u25cf</span>
+        <span id="scoreText"></span>
+      </div>
+    </div>
+    <div class="radar-container">
+      <svg class="radar-svg" viewBox="-120 -30 640 460" id="radarChart"></svg>
+    </div>
+    <h3 style="font-size: 13px; color: var(--gold); letter-spacing: 2px; margin: 24px 0 12px;">
+      <span class="lang-en">DIMENSION BREAKDOWN</span>
+      <span class="lang-zh">\u5404\u7ef4\u5ea6\u8be6\u60c5</span>
+    </h3>
+    <div id="dimDetails" style="background: var(--white); border-radius: 8px; padding: 16px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);"></div>
+    <h3 style="font-size: 13px; color: var(--gold); letter-spacing: 2px; margin: 24px 0 12px;">
+      <span class="lang-en">RECOMMENDATIONS</span>
+      <span class="lang-zh">\u5efa\u8bae\u4e0e\u884c\u52a8\u65b9\u6848</span>
+    </h3>
+    <div id="recommendations"></div>
+    <div style="text-align: center; margin-top: 32px;">
+      <button class="btn btn-gold" onclick="resetAssessment()">Retake / \u91cd\u65b0\u4f5c\u7b54</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    AI Readiness Assessment / AI \u5c31\u7eea\u5ea6\u8bc4\u4f30 — Stonehenge University Leadership Program<br>
+    <a href="#">Praxis Advisory</a> | August 2026
+  </div>
+</div>
+
+<script>
+var dimensions = {
+  data:    { label: "Data & Governance", label_zh: "\u6570\u636e\u4e0e\u6cbb\u7406", color: "#2D8659" },
+  tech:    { label: "Technology", label_zh: "\u6280\u672f\u57fa\u7840", color: "#B8956A" },
+  people:  { label: "People & Culture", label_zh: "\u4eba\u624d\u4e0e\u6587\u5316", color: "#1B365D" },
+  growth:  { label: "Growth Strategy", label_zh: "\u589e\u957f\u6218\u7565", color: "#C53030" },
+  process: { label: "Process Integration", label_zh: "\u6d41\u7a0b\u6574\u5408", color: "#4A90D9" }
+};
+
+var questions = [
+  {
+    dim: "data",
+    text: "How frequently does your team currently use AI tools?",
+    text_zh: "\u8d3f\u56e2\u961f\u76ee\u524d\u4f7f\u7528 AI \u5de5\u5177\u7684\u9891\u7387\u5982\u4f55\uff1f",
+    options: [
+      { text: "Never / Not at all", text_zh: "\u4ece\u672a\u4f7f\u7528", score: 1 },
+      { text: "Occasionally (a few times a month)", text_zh: "\u5076\u5c14\u4f7f\u7528\uff08\u6bcf\u6708\u51e0\u6b21\uff09", score: 2 },
+      { text: "Weekly", text_zh: "\u6bcf\u5468\u4f7f\u7528", score: 3 },
+      { text: "Daily", text_zh: "\u6bcf\u5929\u4f7f\u7528", score: 4 }
+    ]
+  },
+  {
+    dim: "data",
+    text: "Is your core business data digitized and accessible?",
+    text_zh: "\u60a8\u7684\u6838\u5fc3\u4e1a\u52a1\u6570\u636e\u662f\u5426\u5df2\u6570\u5b57\u5316\u5e76\u53ef\u8bbf\u95ee\uff1f",
+    options: [
+      { text: "Mostly paper-based or siloed", text_zh: "\u4ee5\u7eb8\u8d28\u4e3a\u4e3b\u6216\u5404\u7cfb\u7edf\u5b64\u7acb", score: 1 },
+      { text: "Partially digitized (some systems)", text_zh: "\u90e8\u5206\u6570\u5b57\u5316\uff08\u90e8\u5206\u7cfb\u7edf\uff09", score: 2 },
+      { text: "Fully digitized across main systems", text_zh: "\u4e3b\u8981\u7cfb\u7edf\u5168\u9762\u6570\u5b57\u5316", score: 3 },
+      { text: "Centralized data platform with governance", text_zh: "\u96c6\u4e2d\u5f0f\u6570\u636e\u5e73\u53f0\uff0c\u5177\u5907\u6cbb\u7406\u4f53\u7cfb", score: 4 }
+    ]
+  },
+  {
+    dim: "tech",
+    text: "Can your current IT infrastructure support AI deployment?",
+    text_zh: "\u60a8\u73b0\u6709\u7684 IT \u57fa\u7840\u8bbe\u65bd\u662f\u5426\u80fd\u652f\u6491 AI \u90e8\u7f72\uff1f",
+    options: [
+      { text: "Traditional IT \u2014 legacy systems", text_zh: "\u4f20\u7edf IT \u2014 \u9057\u7559\u7cfb\u7edf", score: 1 },
+      { text: "Partially cloud-based", text_zh: "\u90e8\u5206\u4e91\u5316", score: 2 },
+      { text: "Hybrid cloud with modern stack", text_zh: "\u6df7\u5408\u4e91\uff0c\u73b0\u4ee3\u6280\u672f\u6808", score: 3 },
+      { text: "AI-ready infrastructure (GPU, MLOps)", text_zh: "AI \u5c31\u7eea\u57fa\u7840\u8bbe\u65bd\uff08GPU\u3001MLOps\uff09", score: 4 }
+    ]
+  },
+  {
+    dim: "tech",
+    text: "How well do you understand AI compliance risks? (privacy, copyright, bias)",
+    text_zh: "\u60a8\u5bf9 AI \u5408\u89c4\u98ce\u9669\u7684\u4e86\u89e3\u7a0b\u5ea6\u5982\u4f55\uff1f\uff08\u9690\u79c1\u3001\u7248\u6743\u3001\u504f\u89c1\uff09",
+    options: [
+      { text: "Not familiar", text_zh: "\u4e0d\u719f\u6089", score: 1 },
+      { text: "Aware but no formal framework", text_zh: "\u6709\u6240\u4e86\u89e3\uff0c\u4f46\u65e0\u6b63\u5f0f\u6846\u67b6", score: 2 },
+      { text: "Have guidelines in place", text_zh: "\u5df2\u5efa\u7acb\u6307\u5bfc\u65b9\u9488", score: 3 },
+      { text: "Comprehensive governance framework", text_zh: "\u5168\u9762\u7684\u6cbb\u7406\u6846\u67b6", score: 4 }
+    ]
+  },
+  {
+    dim: "people",
+    text: "Does your team have AI / data talent and skills?",
+    text_zh: "\u60a8\u7684\u56e2\u961f\u662f\u5426\u5177\u5907 AI/\u6570\u636e\u4eba\u624d\u548c\u6280\u80fd\uff1f",
+    options: [
+      { text: "No dedicated AI/data people", text_zh: "\u65e0\u4e13\u804c AI/\u6570\u636e\u4eba\u5458", score: 1 },
+      { text: "1\u20132 people with some AI knowledge", text_zh: "1\u20132\u540d\u5177\u5907\u4e00\u5b9a AI \u77e5\u8bc6\u7684\u4eba\u5458", score: 2 },
+      { text: "Small team (3\u20135) with AI capabilities", text_zh: "\u5c0f\u578b\u56e2\u961f\uff083\u20135\u4eba\uff09\uff0c\u5177\u5907 AI \u80fd\u529b", score: 3 },
+      { text: "Dedicated AI team or center of excellence", text_zh: "\u4e13\u804c AI \u56e2\u961f\u6216\u5353\u8d8a\u4e2d\u5fc3", score: 4 }
+    ]
+  },
+  {
+    dim: "people",
+    text: "What\u2019s your management\u2019s attitude toward AI?",
+    text_zh: "\u7ba1\u7406\u5c42\u5bf9 AI \u7684\u6001\u5ea6\u5982\u4f55\uff1f",
+    options: [
+      { text: "Skeptical / wait and see", text_zh: "\u6000\u7591 / \u89c2\u671b\u4e2d", score: 1 },
+      { text: "Supportive but no action yet", text_zh: "\u652f\u6301\u4f46\u5c1a\u672a\u884c\u52a8", score: 2 },
+      { text: "Actively driving AI initiatives", text_zh: "\u79ef\u6781\u63a8\u52a8 AI \u4e8b\u52a1", score: 3 },
+      { text: "AI is a top strategic priority", text_zh: "AI \u662f\u6700\u9ad8\u4f18\u5148\u7ea7\u6218\u7565", score: 4 }
+    ]
+  },
+  {
+    dim: "growth",
+    text: "Do you already have AI-related budget or active projects?",
+    text_zh: "\u60a8\u662f\u5426\u5df2\u6709 AI \u76f8\u5173\u9884\u7b97\u6216\u5728\u6267\u9879\u76ee\uff1f",
+    options: [
+      { text: "No \u2014 not yet considering", text_zh: "\u6ca1\u6709 \u2014 \u5c1a\u672a\u8003\u8651", score: 1 },
+      { text: "Evaluating / in discussion phase", text_zh: "\u8bc4\u4f30\u4e2d / \u8ba8\u8bba\u9636\u6bb5", score: 2 },
+      { text: "Yes \u2014 pilot projects running", text_zh: "\u6709 \u2014 \u5df2\u6709\u8bd5\u70b9\u9879\u76ee\u5728\u8fd0\u884c", score: 3 },
+      { text: "Yes \u2014 scaled deployment across functions", text_zh: "\u6709 \u2014 \u5df2\u5728\u591a\u4e2a\u804c\u80fd\u90e8\u95e8\u89c4\u6a21\u5316\u90e8\u7f72", score: 4 }
+    ]
+  },
+  {
+    dim: "growth",
+    text: "What\u2019s the biggest potential value of AI for your business?",
+    text_zh: "AI \u5bf9\u60a8\u4e1a\u52a1\u7684\u6700\u5927\u6f5c\u5728\u4ef7\u503c\u662f\u4ec0\u4e48\uff1f",
+    options: [
+      { text: "Cost reduction & efficiency", text_zh: "\u964d\u672c\u589e\u6548", score: 1 },
+      { text: "Improved customer experience", text_zh: "\u63d0\u5347\u5ba2\u6237\u4f53\u9a8c", score: 2 },
+      { text: "Product/service innovation", text_zh: "\u4ea7\u54c1/\u670d\u52a1\u521b\u65b0", score: 3 },
+      { text: "New revenue streams & business models", text_zh: "\u65b0\u589e\u6536\u5165\u6e20\u9053\u4e0e\u4e1a\u52a1\u6a21\u5f0f", score: 4 }
+    ]
+  },
+  {
+    dim: "process",
+    text: "Do you have cross-department data sharing and workflow integration?",
+    text_zh: "\u60a8\u662f\u5426\u5b9e\u73b0\u4e86\u8de8\u90e8\u95e8\u6570\u636e\u5171\u4eab\u548c\u5de5\u4f5c\u6d41\u6574\u5408\uff1f",
+    options: [
+      { text: "No \u2014 each department has its own silos", text_zh: "\u6ca1\u6709 \u2014 \u5404\u90e8\u95e8\u5404\u81ea\u4e3a\u653c", score: 1 },
+      { text: "Rarely \u2014 some ad-hoc sharing", text_zh: "\u5f88\u5c11 \u2014 \u5076\u5c14\u4e34\u65f6\u5171\u4eab", score: 2 },
+      { text: "Yes \u2014 regular sharing via common platforms", text_zh: "\u6709 \u2014 \u901a\u8fc7\u901a\u7528\u5e73\u53f0\u5b9a\u671f\u5171\u4eab", score: 3 },
+      { text: "Fully integrated \u2014 real-time cross-system", text_zh: "\u5b8c\u5168\u6574\u5408 \u2014 \u5b9e\u65f6\u8de8\u7cfb\u7edf\u6570\u636e\u6d41\u52a8", score: 4 }
+    ]
+  },
+  {
+    dim: "process",
+    text: "Which business processes are most time-consuming / repetitive?",
+    text_zh: "\u54ea\u4e9b\u4e1a\u52a1\u6d41\u7a0b\u6700\u8017\u65f6\uff0f\u6700\u91cd\u590d\uff1f",
+    options: [
+      { text: "Administrative / manual tasks", text_zh: "\u884c\u653f/\u624b\u52a8\u4efb\u52a1", score: 1 },
+      { text: "Customer service & support", text_zh: "\u5ba2\u670d\u4e0e\u652f\u6301", score: 2 },
+      { text: "Content creation & marketing", text_zh: "\u5185\u5bb9\u521b\u4f5c\u4e0e\u8425\u9500", score: 3 },
+      { text: "Sales enablement & strategic decisions", text_zh: "\u9500\u552e\u8d4b\u80fd\u4e0e\u6218\u7565\u51b3\u7b56", score: 4 }
+    ]
+  }
+];
+
+var currentQuestion = 0;
+var answers = {};
+var currentLang = 'en';
+
+function setLang(lang) {
+  currentLang = lang;
+  document.body.classList.remove('lang-mode-en', 'lang-mode-zh');
+  if (lang === 'en') document.body.classList.add('lang-mode-en');
+  if (lang === 'zh') document.body.classList.add('lang-mode-zh');
+  document.querySelectorAll('.lang-toggle button').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById(lang === 'en' ? 'btnEn' : 'btnZh').classList.add('active');
+  if (document.getElementById('resultsPage').style.display === 'block') {
+    showResults();
+  }
+}
+
+function renderQuestions() {
+  var container = document.getElementById('questionsContainer');
+  container.innerHTML = '';
+  questions.forEach(function(q, i) {
+    var div = document.createElement('div');
+    div.className = 'question-page ' + (i === 0 ? 'active' : '');
+    div.id = 'question-' + i;
+    var dimLabel = currentLang === 'zh' ? dimensions[q.dim].label_zh : dimensions[q.dim].label;
+    div.innerHTML = '<div class="question-card">' +
+      '<div class="question-number">' + dimLabel.toUpperCase() + '</div>' +
+      '<div class="question-text">' +
+        '<div class="lang-en">' + q.text + '</div>' +
+        '<div class="lang-zh">' + q.text_zh + '</div>' +
+      '</div>' +
+      '<div class="options">' +
+        q.options.map(function(opt, j) {
+          return '<div class="option" id="opt-' + i + '-' + j + '" onclick="selectOption(' + i + ', ' + j + ')">' +
+            '<div class="radio"></div>' +
+            '<span>' +
+              '<span class="lang-en">' + opt.text + '</span>' +
+              '<span class="lang-zh">' + opt.text_zh + '</span>' +
+            '</span></div>';
+        }).join('') +
+      '</div></div>';
+    container.appendChild(div);
+  });
+}
+
+function selectOption(qIdx, optIdx) {
+  questions[qIdx].options.forEach(function(_, j) {
+    document.getElementById('opt-' + qIdx + '-' + j).classList.remove('selected');
+  });
+  document.getElementById('opt-' + qIdx + '-' + optIdx).classList.add('selected');
+  answers[qIdx] = optIdx;
+  updateProgress();
+  updateNavButtons();
+}
+
+function nextQuestion() {
+  if (currentQuestion < questions.length - 1) {
+    document.getElementById('question-' + currentQuestion).classList.remove('active');
+    currentQuestion++;
+    document.getElementById('question-' + currentQuestion).classList.add('active');
+    updateProgress(); updateNavButtons();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else if (Object.keys(answers).length === questions.length) {
+    showResults();
+  }
+}
+
+function prevQuestion() {
+  if (currentQuestion > 0) {
+    document.getElementById('question-' + currentQuestion).classList.remove('active');
+    currentQuestion--;
+    document.getElementById('question-' + currentQuestion).classList.add('active');
+    updateProgress(); updateNavButtons();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function updateProgress() {
+  var answered = Object.keys(answers).length;
+  document.getElementById('progressFill').style.width = (answered / questions.length * 100) + '%';
+  var label = currentLang === 'zh'
+    ? ('\u7b2c ' + (currentQuestion + 1) + ' \u9898 / \u5171 ' + questions.length + ' \u9898 \xb7 \u5df2\u7b54 ' + answered + ' \u9898')
+    : ('Question ' + (currentQuestion + 1) + ' of ' + questions.length + ' \xb7 ' + answered + ' answered');
+  document.getElementById('progressText').textContent = label;
+}
+
+function updateNavButtons() {
+  document.getElementById('prevBtn').disabled = currentQuestion === 0;
+  var nextBtn = document.getElementById('nextBtn');
+  if (currentQuestion === questions.length - 1) {
+    var allAnswered = Object.keys(answers).length === questions.length;
+    nextBtn.textContent = allAnswered
+      ? 'See Results \u2192 \u67e5\u770b\u7ed3\u679c'
+      : (currentLang === 'zh' ? '\u5168\u90e8\u7b54\u5b8c\u540e\u53ef\u7ee7\u7eed' : 'Answer all to continue');
+    nextBtn.disabled = !allAnswered;
+  } else {
+    nextBtn.textContent = currentLang === 'zh' ? '\u4e0b\u4e00\u9898 \u2192' : 'Next \u2192';
+    nextBtn.disabled = false;
+  }
+}
+
+function getDimScores() {
+  var scores = {};
+  Object.keys(dimensions).forEach(function(d) { scores[d] = []; });
+  questions.forEach(function(q, i) {
+    if (answers[i] !== undefined) {
+      scores[q.dim].push(q.options[answers[i]].score);
+    }
+  });
+  var result = {};
+  Object.entries(scores).forEach(function(pair) {
+    var dim = pair[0], vals = pair[1];
+    if (vals.length > 0) {
+      var avg = vals.reduce(function(a, b) { return a + b; }, 0) / vals.length;
+      result[dim] = Math.round((avg / 4) * 100);
+    }
+  });
+  return result;
+}
+
+function getOverallScore(dimScores) {
+  var vals = Object.values(dimScores);
+  return Math.round(vals.reduce(function(a, b) { return a + b; }, 0) / vals.length);
+}
+
+function drawRadar(dimScores) {
+  var svg = document.getElementById('radarChart');
+  var cx = 200, cy = 200, maxR = 120;
+  var dims = Object.keys(dimensions);
+  var n = dims.length;
+  var angleStep = (2 * Math.PI) / n;
+  var startAngle = -Math.PI / 2;
+  var html = '';
+
+  [0.25, 0.5, 0.75, 1].forEach(function(pct) {
+    var r = maxR * pct;
+    html += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="#E2E8F0" stroke-width="1"/>';
+  });
+
+  dims.forEach(function(_, i) {
+    var angle = startAngle + i * angleStep;
+    var x2 = cx + maxR * Math.cos(angle);
+    var y2 = cy + maxR * Math.sin(angle);
+    html += '<line x1="' + cx + '" y1="' + cy + '" x2="' + x2 + '" y2="' + y2 + '" stroke="#E2E8F0" stroke-width="1"/>';
+  });
+
+  var points = '';
+  dims.forEach(function(dim, i) {
+    var angle = startAngle + i * angleStep;
+    var r = (dimScores[dim] || 0) / 100 * maxR;
+    var x = cx + r * Math.cos(angle);
+    var y = cy + r * Math.sin(angle);
+    points += x + ',' + y + ' ';
+  });
+  html += '<polygon points="' + points.trim() + '" fill="rgba(184,149,106,0.2)" stroke="#B8956A" stroke-width="2"/>';
+
+  dims.forEach(function(dim, i) {
+    var angle = startAngle + i * angleStep;
+    var r = (dimScores[dim] || 0) / 100 * maxR;
+    var x = cx + r * Math.cos(angle);
+    var y = cy + r * Math.sin(angle);
+    html += '<circle cx="' + x + '" cy="' + y + '" r="5" fill="' + dimensions[dim].color + '" stroke="white" stroke-width="2"/>';
+  });
+
+  dims.forEach(function(dim, i) {
+    var angle = startAngle + i * angleStep;
+    var labelR = maxR + 35;
+    var x = cx + labelR * Math.cos(angle);
+    var y = cy + labelR * Math.sin(angle);
+    var score = dimScores[dim] || 0;
+    var anchor = Math.abs(Math.cos(angle)) < 0.1 ? 'middle' : Math.cos(angle) > 0 ? 'start' : 'end';
+    var labelText = currentLang === 'zh' ? dimensions[dim].label_zh : dimensions[dim].label;
+    html += '<text x="' + x + '" y="' + (y - 8) + '" text-anchor="' + anchor + '" font-size="11" font-weight="600" fill="#1B365D" font-family="sans-serif">' + labelText + '</text>';
+    html += '<text x="' + x + '" y="' + (y + 8) + '" text-anchor="' + anchor + '" font-size="10" fill="#718096" font-family="sans-serif">' + score + '/100</text>';
+  });
+
+  svg.innerHTML = html;
+}
+
+function getScoreLevel(score) {
+  if (score >= 75) return { label: "Excellent", label_zh: "\u51fa\u8272", cls: "excellent", icon: "\u2605\u2605\u2605" };
+  if (score >= 50) return { label: "Good", label_zh: "\u826f\u597d", cls: "good", icon: "\u2605\u2605" };
+  if (score >= 30) return { label: "Developing", label_zh: "\u53d1\u5c55\u4e2d", cls: "fair", icon: "\u2605" };
+  return { label: "Early Stage", label_zh: "\u521d\u671f\u9636\u6bb5", cls: "poor", icon: "\u25cb" };
+}
+
+function getRecommendations(score, dimScores) {
+  var recs = [];
+  var entries = Object.entries(dimScores).sort(function(a, b) { return a[1] - b[1]; });
+  var weakest = entries[0];
+
+  if (score >= 75) {
+    recs.push({
+      title: "\ud83d\ude80 Scale AI Across the Organization / \u5728\u7ec4\u7ec7\u5185\u89c4\u6a21\u5316\u63a8\u5e7f AI",
+      desc: "You have strong foundations. Focus on scaling pilots, building an AI Center of Excellence, and exploring cross-business AI synergies.",
+      desc_zh: "\u60a8\u5df2\u5177\u5907\u5f3a\u5b9e\u57fa\u7840\u3002\u91cd\u70b9\u662f\u6269\u5927\u8bd5\u70b9\u89c4\u6a21\u3001\u5efa\u8bbe AI \u5353\u8d8a\u4e2d\u5fc3\uff0c\u5e76\u63a2\u7d22\u8de8\u4e1a\u52a1 AI \u534f\u540c\u6548\u5e94\u3002",
+      tag: "priority"
+    });
+  } else if (score >= 50) {
+    recs.push({
+      title: "\ud83d\udcc8 Accelerate with Focus / \u805a\u7126\u52a0\u901f",
+      desc: "Pick 2\u20133 high-impact use cases, invest in data quality, and build internal AI talent. Don\u2019t try everything at once.",
+      desc_zh: "\u9009\u62e9 2\u20133 \u4e2a\u9ad8\u5f71\u54cd\u7528\u4f8b\uff0c\u6295\u5165\u6570\u636e\u8d28\u91cf\u5efa\u8bbe\uff0c\u5e76\u57f9\u517b\u5185\u90e8 AI \u4eba\u624d\u3002\u4e0d\u8981\u540c\u65f6\u5c1d\u8bd5\u4e00\u5207\u3002",
+      tag: "recommend"
+    });
+  } else if (score >= 30) {
+    recs.push({
+      title: "\ud83d\udd27 Build Your Foundation / \u5939\u5b9e\u57fa\u7840",
+      desc: "Before scaling AI, focus on fundamentals: digitize core data, establish governance, and build basic AI literacy.",
+      desc_zh: "\u5728\u6269\u5927 AI \u4e4b\u524d\uff0c\u5148\u5939\u5b9e\u57fa\u7840\uff1a\u6570\u5b57\u5316\u6838\u5fc3\u6570\u636e\u3001\u5efa\u7acb\u6cbb\u7406\u673a\u5236\u3001\u6784\u5efa AI \u57fa\u7840\u7d20\u517b\u3002",
+      tag: "priority"
+    });
+  } else {
+    recs.push({
+      title: "\ud83d\udcda Start with AI Education / \u4ece AI \u6559\u80b2\u5f00\u59cb",
+      desc: "Begin with AI awareness workshops for leadership, run a small proof-of-concept, and assess your data readiness.",
+      desc_zh: "\u4ece\u9886\u5bfc\u5c42 AI \u8ba4\u77e5\u5de5\u4f5c\u574a\u5f00\u59cb\uff0c\u8fd0\u884c\u5c0f\u89c4\u6a21\u6982\u5ff5\u9a8c\u8bc1\uff0c\u5e76\u8bc4\u4f30\u60a8\u7684\u6570\u636e\u5c31\u7eea\u5ea6\u3002",
+      tag: "priority"
+    });
+  }
+
+  if (weakest && weakest[1] < 50) {
+    var dimRecs = {
+      data:    { title: "\ud83d\udcca Strengthen Data Foundation / \u5939\u5b9e\u6570\u636e\u57fa\u7840", desc: "Invest in data quality, consolidation, and governance. Clean data is the prerequisite for effective AI.", desc_zh: "\u6295\u5165\u6570\u636e\u8d28\u91cf\u3001\u6574\u5408\u548c\u6cbb\u7406\u3002\u5e72\u51c0\u7684\u6570\u636e\u662f\u6709\u6548 AI \u7684\u524d\u63d0\u3002" },
+      tech:    { title: "\ud83d\udcbb Upgrade Technology Stack / \u5347\u7ea7\u6280\u672f\u6808", desc: "Modernize infrastructure for AI readiness. Consider cloud migration and API-first architecture.", desc_zh: "\u4e3a AI \u5c31\u7eea\u73b0\u4ee3\u5316\u57fa\u7840\u8bbe\u65bd\u3002\u8003\u8651\u4e91\u8fc1\u79fb\u548c API \u4f18\u5148\u67b6\u6784\u3002" },
+      people:  { title: "\ud83d\udc65 Build AI Talent / \u57f9\u517b AI \u4eba\u624d", desc: "Invest in training, hire 1\u20132 AI specialists, and create an internal AI community. Leadership buy-in is critical.", desc_zh: "\u6295\u5165\u57f9\u8bad\uff0c\u62db\u8058 1\u20132 \u540d AI \u4e13\u5bb6\uff0c\u5efa\u7acb\u5185\u90e8 AI \u793e\u533a\u3002\u9886\u5bfc\u5c42\u652f\u6301\u81f3\u5173\u91cd\u8981\u3002" },
+      growth:  { title: "\ud83c\udfaf Define AI Growth Strategy / \u5236\u5b9a AI \u589e\u957f\u6218\u7565", desc: "Align AI initiatives with business growth goals. Identify high-ROI use cases and build a roadmap.", desc_zh: "\u5c06 AI \u4e8b\u52a1\u4e0e\u4e1a\u52a1\u589e\u957f\u76ee\u6807\u5bf9\u9f50\u3002\u8bc6\u522b\u9ad8 ROI \u7528\u4f8b\uff0c\u5236\u5b9a\u8def\u7ebf\u56fe\u3002" },
+      process: { title: "\ud83d\udd04 Integrate AI into Workflows / \u5c06 AI \u878d\u5165\u5de5\u4f5c\u6d41", desc: "Redesign key processes to leverage AI capabilities. Map workflows and identify automation opportunities.", desc_zh: "\u91cd\u65b0\u8bbe\u8ba1\u5173\u952e\u6d41\u7a0b\u4ee5\u5229\u7528 AI \u80fd\u529b\u3002\u6620\u5c04\u5de5\u4f5c\u6d41\u5e76\u8bc6\u522b\u81ea\u52a8\u5316\u673a\u4f1a\u3002" }
+    };
+    if (dimRecs[weakest[0]]) {
+      var r = dimRecs[weakest[0]];
+      recs.push({ title: r.title, desc: r.desc, desc_zh: r.desc_zh, tag: "recommend" });
+    }
+  }
+
+  recs.push({
+    title: "\ud83d\udccb Complete Your Personalized Assessment / \u5b8c\u6210\u60a8\u7684\u4e2a\u6027\u5316\u8bc4\u4f30",
+    desc: "This is a preview. The full interactive version with detailed scoring and personalized recommendations will be available before the session.",
+    desc_zh: "\u8fd9\u662f\u9884\u89c8\u7248\u3002\u542b\u8be6\u7ec6\u8bc4\u5206\u548c\u4e2a\u6027\u5316\u5efa\u8bae\u7684\u5b8c\u6574\u4ea4\u4e92\u7248\u5c06\u5728\u57f2\u5242\u524d\u63d0\u4f9b\u3002",
+    tag: "optional"
+  });
+
+  return recs;
+}
+
+function showResults() {
+  document.getElementById('questionsContainer').style.display = 'none';
+  document.querySelector('.nav-buttons').style.display = 'none';
+  document.querySelector('.progress-container').style.display = 'none';
+  document.getElementById('resultsPage').style.display = 'block';
+
+  var dimScores = getDimScores();
+  var score = getOverallScore(dimScores);
+  var level = getScoreLevel(score);
+
+  var badge = document.getElementById('scoreBadge');
+  badge.className = 'score-badge ' + level.cls;
+  document.getElementById('scoreIcon').textContent = level.icon;
+  document.getElementById('scoreText').textContent = score + '/100 \u2014 ' + (currentLang === 'zh' ? level.label_zh : level.label);
+
+  drawRadar(dimScores);
+
+  var details = document.getElementById('dimDetails');
+  details.innerHTML = '';
+  Object.entries(dimScores).forEach(function(pair) {
+    var dim = pair[0], s = pair[1];
+    var d = dimensions[dim];
+    var labelText = currentLang === 'zh' ? d.label_zh : d.label;
+    details.innerHTML += '<div class="dim-detail">' +
+      '<div class="dim-dot" style="background: ' + d.color + '"></div>' +
+      '<div class="dim-info"><div class="dim-name">' + labelText + '</div></div>' +
+      '<div class="dim-score">' + s + '</div>' +
+      '<div class="dim-bar"><div class="dim-bar-fill" style="width: ' + s + '%; background: ' + d.color + '"></div></div>' +
+    '</div>';
+  });
+
+  var recs = getRecommendations(score, dimScores);
+  var recsEl = document.getElementById('recommendations');
+  recsEl.innerHTML = '';
+  recs.forEach(function(rec) {
+    var tagCls = rec.tag === 'priority' ? 'tag-priority' : rec.tag === 'recommend' ? 'tag-recommend' : 'tag-optional';
+    var tagText = rec.tag === 'priority'
+      ? (currentLang === 'zh' ? '\u4f18\u5148' : 'PRIORITY')
+      : rec.tag === 'recommend'
+        ? (currentLang === 'zh' ? '\u5efa\u8bae' : 'RECOMMENDED')
+        : (currentLang === 'zh' ? '\u4e0b\u4e00\u6b65' : 'NEXT STEP');
+    var descText = currentLang === 'zh' && rec.desc_zh ? rec.desc_zh : rec.desc;
+    recsEl.innerHTML += '<div class="recommendation">' +
+      '<h3>' + rec.title + '</h3>' +
+      '<p><div class="lang-en">' + rec.desc + '</div><div class="lang-zh">' + (rec.desc_zh || rec.desc) + '</div></p>' +
+      '<span class="tag ' + tagCls + '">' + tagText + '</span>' +
+    '</div>';
+  });
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetAssessment() {
+  currentQuestion = 0;
+  answers = {};
+  document.getElementById('questionsContainer').style.display = 'block';
+  document.querySelector('.nav-buttons').style.display = 'flex';
+  document.querySelector('.progress-container').style.display = 'block';
+  document.getElementById('resultsPage').style.display = 'none';
+  questions.forEach(function(_, i) {
+    questions[i].options.forEach(function(_, j) {
+      var el = document.getElementById('opt-' + i + '-' + j);
+      if (el) el.classList.remove('selected');
+    });
+  });
+  document.querySelectorAll('.question-page').forEach(function(p, i) { p.classList.toggle('active', i === 0); });
+  renderQuestions();
+  updateProgress(); updateNavButtons();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+renderQuestions();
+updateProgress();
+updateNavButtons();
+</script>
+</body>
+</html>
