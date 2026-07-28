@@ -144,16 +144,16 @@
 <script>
 var qData = [
   {id:1, cat:"AI Literacy / AI 素养",
-   text:"If a colleague says “AI answers sound convincing so they are probably correct,” what is the best response?",
-   zh:"如果同事说“AI 给出的答案听起来很靠谱，应该是对的”，最好的回应是什么？",
+   text:"If a colleague says \u201cAI answers sound convincing so they are probably correct,\u201d what is the best response?",
+   zh:"如果同事说\u201cAI 给出的答案听起来很靠谱，应该是对的\u201d，最好的回应是什么？",
    opts:[
      {l:"A",t:"They are right — AI is trained on huge amounts of data and rarely makes mistakes.",z:"他们说得对——AI 基于海量数据训练，很少出错。"},
-     {l:"B",t:"That’s not always true — AI can generate plausible-sounding but incorrect content. We should verify the output.",z:"不一定——AI 可能生成听起来合理但实际错误的内容。我们应该核实输出。"},
-     {l:"C",t:"AI doesn’t really “understand” anything, so all its answers are equally useless.",z:"AI 其实什么都不“理解”，所以它的所有回答都没用。"},
+     {l:"B",t:"That\u2019s not always true — AI can generate plausible-sounding but incorrect content. We should verify the output.",z:"不一定——AI 可能生成听起来合理但实际错误的内容。我们应该核实输出。"},
+     {l:"C",t:"AI doesn\u2019t really \u201cunderstand\u201d anything, so all its answers are equally useless.",z:"AI 其实什么都不\u201c理解\u201d，所以它的所有回答都没用。"},
      {l:"D",t:"Just ask the AI to double-check itself — if it confirms, it must be correct.",z:"让 AI 自己复查一下就行——如果它确认了，那肯定是对的。"}
    ],correct:1,
    exp:"AI models can produce confident, fluent text that is factually wrong — often called hallucination. The correct approach is always to verify AI output against reliable sources.",
-   expZ:"AI 模型可能产出听起来自信流利、但实际上错误的内容——这被称为“幻觉”。正确做法始终是将 AI 输出与可靠来源进行交叉验证。"},
+   expZ:"AI 模型可能产出听起来自信流利、但实际上错误的内容——这被称为\u201c幻觉\u201d。正确做法始终是将 AI 输出与可靠来源进行交叉验证。"},
   {id:2, cat:"Human-AI Collaboration / 人机协作",
    text:"Which example best reflects a proper human-in-the-loop setup?",
    zh:"以下哪个案例最能体现合理的人在回路（human-in-the-loop）机制？",
@@ -183,20 +183,20 @@ var qData = [
      {l:"A",t:"The AI tools are not good enough yet.",z:"AI 工具还不够好。"},
      {l:"B",t:"The employees are not technical enough.",z:"员工的技术能力不够。"},
      {l:"C",t:"The real bottleneck is change management, not technology.",z:"真正的瓶颈是变革管理，而非技术。"},
-     {l:"D",t:"AI tools don’t actually help in a business context.",z:"AI 工具在业务场景中其实没什么用。"}
+     {l:"D",t:"AI tools don\u2019t actually help in a business context.",z:"AI 工具在业务场景中其实没什么用。"}
    ],correct:2,
-   exp:"Technology alone doesn’t create value — people need to change their workflows, habits, and mindset. Change management is consistently the biggest barrier to AI ROI.",
+   exp:"Technology alone doesn\u2019t create value — people need to change their workflows, habits, and mindset. Change management is consistently the biggest barrier to AI ROI.",
    expZ:"技术本身不创造价值——人需要改变工作流程、习惯和思维方式。变革管理始终是 AI 投资回报率的最大障碍。"},
   {id:5, cat:"Strategic Thinking / 战略思维",
    text:"Which best reflects a higher level of AI fluency?",
    zh:"以下哪项最能体现较高的 AI 流畅度？",
    opts:[
      {l:"A",t:"Knowing how to write detailed prompts for ChatGPT.",z:"知道如何为 ChatGPT 撰写详细的提示词。"},
-     {l:"B",t:"Understanding AI’s limitations and being able to judge which business problems are suitable for AI.",z:"理解 AI 的局限性，能判断哪些业务问题适合用 AI 解决。"},
+     {l:"B",t:"Understanding AI\u2019s limitations and being able to judge which business problems are suitable for AI.",z:"理解 AI 的局限性，能判断哪些业务问题适合用 AI 解决。"},
      {l:"C",t:"Being able to build a machine learning model from scratch.",z:"能从零开始构建一个机器学习模型。"},
      {l:"D",t:"Using AI to replace as many human workers as possible.",z:"用 AI 尽可能多地替代人工。"}
    ],correct:1,
-   exp:"True AI fluency goes beyond knowing how to use tools — it’s about understanding what AI can and cannot do, and strategically evaluating where it adds real value.",
+   exp:"True AI fluency goes beyond knowing how to use tools — it\u2019s about understanding what AI can and cannot do, and strategically evaluating where it adds real value.",
    expZ:"真正的 AI 流畅度不仅乎会用工具，更在于理解 AI 能做什么、不能做什么，并能从战略角度评估 AI 在哪里能创造真正价值。"},
   {id:6, cat:"Quality Assurance / 质量保障",
    text:"If AI generates marketing copy, what is the most appropriate next step?",
@@ -213,12 +213,12 @@ var qData = [
    text:"Which is most clearly a responsible AI issue rather than just a technical issue?",
    zh:"以下哪项最明显属于负责任 AI 问题，而不仅仅是技术问题？",
    opts:[
-     {l:"A",t:"The model’s accuracy dropped because training data was outdated.",z:"模型准确率下降，因为训练数据过时了。"},
+     {l:"A",t:"The model\u2019s accuracy dropped because training data was outdated.",z:"模型准确率下降，因为训练数据过时了。"},
      {l:"B",t:"The AI system runs slowly because of insufficient computing resources.",z:"AI 系统运行缓慢，因为计算资源不足。"},
      {l:"C",t:"A hiring model systematically disadvantages a group of applicants.",z:"一个招聘模型系统性地对某一群体不利。"},
      {l:"D",t:"The chatbot sometimes gives irrelevant answers.",z:"聊天机器人有时给出不相关的回答。"}
    ],correct:2,
-   exp:"When an AI system systematically discriminates against a group, it’s a fairness and ethics problem with real-world consequences — not just a technical bug.",
+   exp:"When an AI system systematically discriminates against a group, it\u2019s a fairness and ethics problem with real-world consequences — not just a technical bug.",
    expZ:"当 AI 系统系统性地歧视某一群体时，这是一个具有现实后果的公平与伦理问题——而不仅仅是技术缺陷。"},
   {id:8, cat:"Strategic Planning / 战略规划",
    text:"If a company wants to identify AI opportunities, what is usually the best starting point?",
@@ -240,9 +240,9 @@ var lvData = [
    rec:"Focus on building foundational AI literacy. Hands-on workshops, peer discussions, and experimenting with AI tools in low-risk scenarios will rapidly build your confidence.",
    recZ:"聚焦构建 AI 基础素养。通过实操工作坊、同伴讨论和在低风险场景中尝试 AI 工具，将迅速提升您的信心。"},
   {range:"7–10",en:"Level 2 — AI Usage",zh:"第2级 — AI 应用阶段",cls:"level-2",color:"var(--warning)",
-   desc:"You demonstrate practical usage of AI and understand some of its limitations. You’re comfortable with AI tools but may still be developing deeper strategic thinking.",
+   desc:"You demonstrate practical usage of AI and understand some of its limitations. You\u2019re comfortable with AI tools but may still be developing deeper strategic thinking.",
    descZ:"您展现了实际 AI 应用能力，并了解部分局限性。您对 AI 工具已经熟练，但在战略层面思考方面可能仍在发展中。",
-   rec:"Deepen your understanding by exploring AI’s failure modes and edge cases. Practice evaluating AI outputs critically and start identifying AI opportunities aligned with your business goals.",
+   rec:"Deepen your understanding by exploring AI\u2019s failure modes and edge cases. Practice evaluating AI outputs critically and start identifying AI opportunities aligned with your business goals.",
    recZ:"通过探索 AI 的失败模式和边界情况来深化理解。练习批判性地评估 AI 输出，并开始识别与业务目标对齐的 AI 机会。"},
   {range:"11–13",en:"Level 3 — Applied Understanding",zh:"第3级 — AI 应用理解阶段",cls:"level-3",color:"var(--gold)",
    desc:"You have a solid applied understanding of AI — its capabilities, limitations, ethical considerations, and strategic value.",
@@ -250,7 +250,7 @@ var lvData = [
    rec:"Leverage your fluency to lead AI initiatives in your team. Focus on change management, responsible AI governance, and identifying high-impact opportunities.",
    recZ:"利用您的 AI 流畅度在团队中引领 AI 项目。聚焦变革管理、负责任 AI 治理，以及识别高影响机会。"},
   {range:"14–16",en:"Level 4 — Strategic Fluency",zh:"第4级 — AI 战略流畅阶段",cls:"level-4",color:"var(--success)",
-   desc:"Excellent — you demonstrate strategic AI fluency. You understand AI’s potential and limitations deeply and can evaluate its fit for complex business problems.",
+   desc:"Excellent — you demonstrate strategic AI fluency. You understand AI\u2019s potential and limitations deeply and can evaluate its fit for complex business problems.",
    descZ:"出色——您展现出战略级 AI 流畅度。您深刻理解 AI 的潜力与局限性，能评估其与复杂业务问题的契合度。",
    rec:"Share your knowledge with peers and help build organizational AI literacy. Focus on scaling responsible AI practices and exploring innovative applications.",
    recZ:"与同伴分享您的知识，助力构建组织 AI 素养。聚焦扩大负责任 AI 实践，并探索能创造竞争优势的创新应用。"}
