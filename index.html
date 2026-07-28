@@ -291,12 +291,12 @@ function sel(qi,oi) {
   ans[qi]=oi; updateProg(); updateNav();
 }
 
-function nextQ() {
+function nextQuestion() {
   if(curQ<qData.length-1){document.getElementById('q-'+curQ).classList.remove('active');curQ++;document.getElementById('q-'+curQ).classList.add('active');updateProg();updateNav();window.scrollTo({top:0,behavior:'smooth'});}
   else if(Object.keys(ans).length===qData.length) showResults();
 }
 
-function prevQ() {
+function prevQuestion() {
   if(curQ>0){document.getElementById('q-'+curQ).classList.remove('active');curQ--;document.getElementById('q-'+curQ).classList.add('active');updateProg();updateNav();window.scrollTo({top:0,behavior:'smooth'});}
 }
 
